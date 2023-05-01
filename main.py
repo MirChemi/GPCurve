@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from matplotlib import pyplot
+from matplotlib.widgets import Button as bt
 import numpy as np
 import pdfplumber
 import pandas as pd
@@ -14,6 +15,9 @@ def main():
     def clear():
         lb1.delete(1, END)
         lb2.delete(1, END)
+
+    def copy(event):
+        print("doing copy")
 
     def start():
         with pdfplumber.open(lb2.get(1)) as pdf:
@@ -61,6 +65,9 @@ def main():
         fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
         ax1 = axes
         ax1.plot(x, y, 'k--', label='original')
+        ax_copy = fig.add_axes([0.7, 0.05, 0.1, 0.075])
+        b_copy = bt(ax_copy, 'Copy')
+        b_copy.on_clicked(copy)
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
