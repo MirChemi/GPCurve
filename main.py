@@ -65,7 +65,7 @@ def main():
         fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
         ax1 = axes
         ax1.plot(x, y, 'k--', label='original')
-        ax_copy = fig.add_axes([0.7, 0.05, 0.1, 0.075])
+        ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
         b_copy = bt(ax_copy, 'Copy')
         b_copy.on_clicked(copy)
         pyplot.show()
