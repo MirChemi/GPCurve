@@ -7,8 +7,8 @@ import numpy as np
 import pdfplumber
 import pandas as pd
 
-flag1 = "6,0"
-flag2 = "10,0"
+flag1 = "6,00"
+flag2 = "10,00"
 
 
 def main():
@@ -53,21 +53,48 @@ def main():
             data[i] = data[i].replace(',', '.')
             li = data[i].split('\t')
             vl = float(li[0])
-            lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl**3
+            lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
             x.append(lgm)
             y.append(float(li[2]))
+
         y_min = min(y)
         for i in range(len(y)):
             y[i] = y[i] - y_min
         y_max = max(y)
         for i in range(len(y)):
             y[i] = y[i] / y_max
+
+        index_max = y.index(max(y))
         fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
         ax1 = axes
         ax1.plot(x, y, 'k--', label='original')
+        ax1.set_xlim(ax1.get_xlim()[::-1])
         ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
         b_copy = bt(ax_copy, 'Copy')
         b_copy.on_clicked(copy)
+        x = np.array(x)
+        y = np.array(y)
+
+        index_left_min = index_max
+        flag = True
+        while flag:
+            if y[index_left_min - 1] <= y[index_left_min]:
+                index_left_min -= 1
+            else:
+                flag = False
+        index_right_min = index_max
+        flag = True
+        while flag:
+            if y[index_right_min + 1] <= y[index_right_min]:
+                index_right_min += 1
+            else:
+                flag = False
+        x_line = x[index_left_min], x[index_right_min]
+        y_base = min(y[index_left_min], y[index_right_min])
+        y_line = y_base, y_base
+        ax1.plot(x_line, y_line, 'xr-')
+        ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
+
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
