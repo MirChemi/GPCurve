@@ -92,6 +92,8 @@ def main():
         x_line = x_np[index_left_min], x_np[index_right_min]
         y_base = min(y_np[index_left_min], y_np[index_right_min])
         y_line = y_base, y_base
+        k_line = -(y_line[1]-y_line[0])/(x_line[0]-x_line[1])
+        b_line = y_line[0]-k_line*x_line[0]
         ax1.plot(x_line, y_line, 'xr-')
         #ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
 
@@ -100,12 +102,12 @@ def main():
         print(index_left_min)
         print(index_right_min)
 
-        for i in range(1, index_right_min - index_left_min):
+        for i in range(index_right_min - index_left_min + 1):
             x_peak.append(x[i + index_left_min])
-            y_peak.append(y[i + index_left_min])
+            y_peak.append(y[i + index_left_min] - (k_line*x[i + index_left_min] + b_line))
 
-
-        ax1.plot(x_peak, y_peak, 'xb-')
+        print('len_peak = ' + str(len(x_peak)))
+        ax1.plot(x_peak, y_peak, 'b-')
 
 
 
