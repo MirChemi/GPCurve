@@ -72,8 +72,8 @@ def main():
         ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
         b_copy = bt(ax_copy, 'Copy')
         b_copy.on_clicked(copy)
-        x = np.array(x)
-        y = np.array(y)
+        x_np = np.array(x)
+        y_np = np.array(y)
 
         index_left_min = index_max
         flag = True
@@ -89,11 +89,26 @@ def main():
                 index_right_min += 1
             else:
                 flag = False
-        x_line = x[index_left_min], x[index_right_min]
-        y_base = min(y[index_left_min], y[index_right_min])
+        x_line = x_np[index_left_min], x_np[index_right_min]
+        y_base = min(y_np[index_left_min], y_np[index_right_min])
         y_line = y_base, y_base
         ax1.plot(x_line, y_line, 'xr-')
-        ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
+        #ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
+
+        x_peak = []
+        y_peak = []
+        print(index_left_min)
+        print(index_right_min)
+
+        for i in range(1, index_right_min - index_left_min):
+            x_peak.append(x[i + index_left_min])
+            y_peak.append(y[i + index_left_min])
+
+
+        ax1.plot(x_peak, y_peak, 'xb-')
+
+
+
 
         pyplot.show()
 
