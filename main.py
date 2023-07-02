@@ -6,12 +6,13 @@ from matplotlib import pyplot
 from matplotlib.widgets import Button as bt
 import numpy as np
 import pdfplumber
-from statistics import mean
-import pandas as pd
+from scipy.optimize import curve_fit
+import clipboard
 
 
 def main():
     def clear():
+        nonlocal number_gauss, amp, cen, sigma
         lb1.delete(1, END)
         lb2.delete(1, END)
         entry_ff.delete(0, END)
@@ -26,12 +27,28 @@ def main():
         entry_sb.insert(0, 'auto')
         entry_eb.delete(0, END)
         entry_eb.insert(0, 'auto')
+        number_gauss = 0
+        button_gauss.config(text=f"ADD GAUSS({number_gauss})")
+        amp = []
+        cen = []
+        sigma = []
 
     def copy(event):
-        print("doing copy")
+        global x_peak, y_peak
+        to_copy = ''
+        for i in range(len(x_peak)):
+            to_copy += str(x_peak[i])
+            to_copy += '\t'
+            to_copy += str(y_peak[i])
+            to_copy += '\n'
+        clipboard.copy(to_copy)
 
     def start():
-
+        global x_peak, y_peak
+        nonlocal amp, cen, sigma
+        print(amp)
+        print(cen)
+        print(sigma)
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
         input1 = str(lb1.get(1))
@@ -216,7 +233,39 @@ def main():
         print('peak area = ' + str(sum(slice_area)))
         print('number of slices = ' + str(len(x_peak) - 1))
         ax1.plot(x_peak, y_peak, 'b-')
+        if len(amp) > 0:
 
+            def func(x1, *params):
+                y1 = np.zeros_like(x1)
+                for i in range(0, len(params), 3):
+                    ctr1 = params[i]
+                    amp1 = params[i + 1]
+                    wid1 = params[i + 2]
+                    y1 = y1 + amp1 * np.exp(-0.5*((x1 - ctr1) / wid1) ** 2)
+                return y1
+
+            guess = []
+            for i in range(len(amp)):
+                guess.append(cen[i])
+                guess.append(amp[i])
+                guess.append(sigma[i])
+            print(guess)
+
+            popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, maxfev=100000)
+            fit = func(x_peak, *popt)
+            ax1.plot(x_peak, fit, 'g-')
+            gac = []
+            print(popt)
+            for ii in range(len(amp)):
+                a = []
+                a.append(float(popt[ii*3]))
+                a.append(float(popt[ii*3+1]))
+                a.append(float(popt[ii*3 + 2]))
+                a = np.array(a)
+                print(a)
+                print(type(a))
+                gac.append(func(x_peak, *a))
+                ax1.plot(x_peak, gac[ii], 'y-')
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
@@ -246,10 +295,78 @@ def main():
     lb2.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
 
     button_start = Button(root, text="START", command=start)
-    button_start.grid(column=0, row=4, rowspan=3, sticky="news")
+    button_start.grid(column=0, row=4, rowspan=2, sticky="news")
 
     button_clear = Button(root, text="CLEAR", command=clear)
-    button_clear.grid(column=0, row=7, rowspan=3, sticky="news")
+    button_clear.grid(column=0, row=6, rowspan=2, sticky="news")
+
+    number_gauss = 0
+
+    amp = []
+    cen = []
+    sigma = []
+
+    def del_gauss(top):
+        nonlocal number_gauss, amp, cen, sigma
+        top.destroy()
+        amp = []
+        cen = []
+        sigma = []
+        number_gauss = 0
+        button_gauss.config(text=f"ADD GAUSS({number_gauss})")
+
+    def popup_gauss():
+
+        def close_gauss(top):
+            nonlocal number_gauss, amp, cen, sigma
+            amp.append(float(entry_amp.get()))
+            cen.append(float(entry_cen.get()))
+            sigma.append(float(entry_sigma.get()))
+            top.destroy()
+            number_gauss += 1
+            button_gauss.config(text=f"ADD GAUSS({number_gauss})")
+
+        # Create a Toplevel window
+        top = Toplevel(root)
+        top.geometry("200x200")
+
+        for gc in range(2):
+            top.columnconfigure(index=gc, weight=1)
+        for gr in range(4):
+            top.rowconfigure(index=gr, weight=1)
+
+        label_amp = ttk.Label(top, text="amplitude")
+        label_amp.configure(anchor="center")
+        label_amp.grid(column=0, row=0, sticky="news")
+
+        entry_amp = Entry(top, width=10)
+        entry_amp.insert(0, '1.0')
+        entry_amp.grid(column=1, row=0)
+
+        label_cen = ttk.Label(top, text="center")
+        label_cen.configure(anchor="center")
+        label_cen.grid(column=0, row=1, sticky="news")
+
+        entry_cen = Entry(top, width=10)
+        entry_cen.insert(0, '5.0')
+        entry_cen.grid(column=1, row=1)
+
+        label_sigma = ttk.Label(top, text="sigma")
+        label_sigma.configure(anchor="center")
+        label_sigma.grid(column=0, row=2, sticky="news")
+
+        entry_sigma = Entry(top, width=10)
+        entry_sigma.insert(0, '0.1')
+        entry_sigma.grid(column=1, row=2)
+
+        button = Button(top, text="Ok", command=lambda: close_gauss(top))
+        button.grid(column=0, row=3, sticky="news")
+
+        button = Button(top, text="Del gauss", command=lambda: del_gauss(top))
+        button.grid(column=1, row=3, sticky="news")
+
+    button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
+    button_gauss.grid(column=0, row=8, rowspan=2, sticky="news")
 
     label_first_flag = ttk.Label(text="first flag")
     label_first_flag.configure(anchor="center")
