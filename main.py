@@ -276,6 +276,7 @@ def main():
             print('peak area = ' + str(sum(slice_area)))
             print('number of slices = ' + str(len(x_pe) - 1))
 
+        calculate_peak(vol_peak, x_peak, m_peak, y_peak)
         ax1.plot(x_peak, y_peak, 'b-')
         if len(amp) > 0:
 
