@@ -238,7 +238,7 @@ def main():
             m_peak.append(10 ** x[i + index_left_min])
             y_peak.append(y[i + index_left_min] - (k_line * x[i + index_left_min] + b_line))
 
-        def calculate_peak(vol_pe, x_pe, m_pe, y_pe):
+        def calculate_peak(x_pe, y_pe):
 
             m_avg = []
             slice_start = []
@@ -252,9 +252,9 @@ def main():
             sa_d_m = []
 
             for ci in range(len(x_pe) - 1):
-                m_avg.append((m_pe[ci] + m_pe[ci + 1]) / 2)
-                slice_start.append(vol_pe[ci])
-                slice_end.append(vol_pe[ci + 1])
+                m_avg.append((10**x_pe[ci] + 10**x_pe[ci + 1]) / 2)
+                slice_start.append(x_pe[ci])
+                slice_end.append(x_pe[ci + 1])
                 slice_avg.append((slice_start[ci] + slice_end[ci]) / 2)
                 i_start.append(y_pe[ci])
                 i_end.append(y_pe[ci + 1])
@@ -273,7 +273,7 @@ def main():
             print('peak area = ' + str(sum(slice_area)))
             print('number of slices = ' + str(len(x_pe) - 1))
 
-        calculate_peak(vol_peak, x_peak, m_peak, y_peak)
+        calculate_peak(x_peak, y_peak)
         ax1.plot(x_peak, y_peak, 'b-')
         if len(amp) > 0:
 
@@ -306,6 +306,7 @@ def main():
                 a = np.array(a)
                 print(a)
                 gac.append(func(x_peak, *a))
+                calculate_peak(x_peak, gac[ii])
                 ax1.plot(x_peak, gac[ii], 'y-')
         pyplot.show()
 
