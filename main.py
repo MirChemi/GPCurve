@@ -33,6 +33,27 @@ def main():
         cen = []
         sigma = []
 
+    def clear_noc():
+        nonlocal number_gauss, amp, cen, sigma
+        lb1.delete(1, END)
+        entry_ff.delete(0, END)
+        entry_ff.insert(0, '6,00')
+        entry_sf.delete(0, END)
+        entry_sf.insert(0, '10,00')
+        entry_sp.delete(0, END)
+        entry_sp.insert(0, 'auto')
+        entry_ep.delete(0, END)
+        entry_ep.insert(0, 'auto')
+        entry_sb.delete(0, END)
+        entry_sb.insert(0, 'auto')
+        entry_eb.delete(0, END)
+        entry_eb.insert(0, 'auto')
+        number_gauss = 0
+        button_gauss.config(text=f"ADD GAUSS({number_gauss})")
+        amp = []
+        cen = []
+        sigma = []
+
     def copy(event):
         global x_peak, y_peak
         to_copy = ''
@@ -298,7 +319,10 @@ def main():
     button_start.grid(column=0, row=4, rowspan=2, sticky="news")
 
     button_clear = Button(root, text="CLEAR", command=clear)
-    button_clear.grid(column=0, row=6, rowspan=2, sticky="news")
+    button_clear.grid(column=0, row=6, sticky="news")
+
+    button_clear_noc = Button(root, text="CLEAR -C", command=clear_noc)
+    button_clear_noc.grid(column=0, row=7, sticky="news")
 
     number_gauss = 0
 
