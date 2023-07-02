@@ -157,10 +157,7 @@ def main():
             vol.append(vl)
             lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
             x.append(lgm)
-            y_fix = 1
-            if bool(do_fix.get()) and i > 0:
-                y_fix = y_fix * ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i-1]) / (vol[i] - vol[i-1]))
-            y.append(float(li[2]) * y_fix)
+            y.append(float(li[2]))
 
         y_min = min(y)
         for i in range(len(y)):
@@ -168,6 +165,11 @@ def main():
         y_max = max(y)
         for i in range(len(y)):
             y[i] = y[i] / y_max
+        for i in range(len(y)):
+            y_fix = 1
+            if bool(do_fix.get()) and i > 0:
+                y_fix = ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i-1]) / (vol[i] - vol[i-1]))
+            y[i] = y[i] * y_fix
 
         index_max = y.index(max(y))
         fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
