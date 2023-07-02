@@ -110,14 +110,16 @@ def main():
         with pdfplumber.open(name2) as pdf:
             page = pdf.pages[0]
             ct = page.extract_tables(table_settings={})
+        pre_const = []
+        const = []
         for i in range(len(ct)):
             for j in range(len(ct[i])):
                 if ct[i][j] == ['C0', 'C1', 'C2', 'C3']:
-                    const = ct[i][j + 1]
-        for i in range(len(const)):
-            const[i] = const[i].replace(' ', '')
-            const[i] = const[i].replace(',', '.')
-            const[i] = float(const[i])
+                    pre_const = ct[i][j + 1]
+        for i in range(len(pre_const)):
+            pre_const[i] = pre_const[i].replace(' ', '')
+            pre_const[i] = pre_const[i].replace(',', '.')
+            const.append(float(pre_const[i]))
         print('C0 - C3 = ' + str(const))
 
         with open(lb1.get(1)) as f:
@@ -138,6 +140,8 @@ def main():
         x = []
         vol = []
         y = []
+        if bool(do_fix.get()):
+            print('lg intensity fixed')
         for i in range(len(data)):
             data[i] = data[i].replace('\n', '')
             data[i] = data[i].replace(',', '.')
@@ -146,7 +150,10 @@ def main():
             vol.append(vl)
             lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
             x.append(lgm)
-            y.append(float(li[2]))
+            y_fix = 1
+            if bool(do_fix.get()) and i > 0:
+                y_fix = y_fix * ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i-1]) / (vol[i] - vol[i-1]))
+            y.append(float(li[2]) * y_fix)
 
         y_min = min(y)
         for i in range(len(y)):
@@ -307,8 +314,8 @@ def main():
     lb2.insert(1, "drag constants pdf data file or folder")
     try:
         with open('const.txt') as f:
-            const = f.read()
-        lb2.insert(2, const)
+            const_line = f.read()
+        lb2.insert(2, const_line)
     except:
         print("no const.txt file")
     lb2.drop_target_register(DND_FILES)
@@ -390,7 +397,11 @@ def main():
         button.grid(column=1, row=3, sticky="news")
 
     button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
-    button_gauss.grid(column=0, row=8, rowspan=2, sticky="news")
+    button_gauss.grid(column=0, row=8, sticky="news")
+
+    do_fix = IntVar()
+    fix_cb = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
+    fix_cb.grid(column=0, row=9, sticky="news")
 
     label_first_flag = ttk.Label(text="first flag")
     label_first_flag.configure(anchor="center")
