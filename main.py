@@ -241,38 +241,41 @@ def main():
             m_peak.append(10 ** x[i + index_left_min])
             y_peak.append(y[i + index_left_min] - (k_line * x[i + index_left_min] + b_line))
 
-        m_avg = []
-        slice_start = []
-        slice_end = []
-        slice_avg = []
-        i_start = []
-        i_end = []
-        i_avg = []
-        slice_area = []
-        sa_m = []
-        sa_d_m = []
+        def calculate_peak(vol_pe, x_pe, m_pe, y_pe):
 
-        for i in range(len(x_peak) - 1):
-            m_avg.append((m_peak[i] + m_peak[i + 1]) / 2)
-            slice_start.append(vol_peak[i])
-            slice_end.append(vol_peak[i + 1])
-            slice_avg.append((slice_start[i] + slice_end[i]) / 2)
-            i_start.append(y_peak[i])
-            i_end.append(y_peak[i + 1])
-            i_avg.append((i_start[i] + i_end[i]) / 2)
-            slice_area.append(i_avg[i] * abs(slice_end[i] - slice_start[i]))
-            sa_m.append(slice_area[i] * m_avg[i])
-            sa_d_m.append(slice_area[i] / m_avg[i])
+            m_avg = []
+            slice_start = []
+            slice_end = []
+            slice_avg = []
+            i_start = []
+            i_end = []
+            i_avg = []
+            slice_area = []
+            sa_m = []
+            sa_d_m = []
 
-        m_n = sum(slice_area) / sum(sa_d_m)
-        m_w = sum(sa_m) / sum(slice_area)
-        mwd = m_w / m_n
+            for ci in range(len(x_pe) - 1):
+                m_avg.append((m_pe[ci] + m_pe[ci + 1]) / 2)
+                slice_start.append(vol_pe[ci])
+                slice_end.append(vol_pe[ci + 1])
+                slice_avg.append((slice_start[ci] + slice_end[ci]) / 2)
+                i_start.append(y_pe[ci])
+                i_end.append(y_pe[ci + 1])
+                i_avg.append((i_start[ci] + i_end[ci]) / 2)
+                slice_area.append(i_avg[ci] * abs(slice_end[ci] - slice_start[ci]))
+                sa_m.append(slice_area[ci] * m_avg[ci])
+                sa_d_m.append(slice_area[ci] / m_avg[ci])
 
-        print('Mn = ' + str(m_n))
-        print('Mw = ' + str(m_w))
-        print('Mw/Mn = ' + str(mwd))
-        print('peak area = ' + str(sum(slice_area)))
-        print('number of slices = ' + str(len(x_peak) - 1))
+            m_n = sum(slice_area) / sum(sa_d_m)
+            m_w = sum(sa_m) / sum(slice_area)
+            mwd = m_w / m_n
+
+            print('Mn = ' + str(m_n))
+            print('Mw = ' + str(m_w))
+            print('Mw/Mn = ' + str(mwd))
+            print('peak area = ' + str(sum(slice_area)))
+            print('number of slices = ' + str(len(x_pe) - 1))
+
         ax1.plot(x_peak, y_peak, 'b-')
         if len(amp) > 0:
 
