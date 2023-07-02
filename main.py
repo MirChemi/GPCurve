@@ -54,13 +54,23 @@ def main():
         cen = []
         sigma = []
 
-    def copy(event):
+    def copy_peak(event):
         global x_peak, y_peak
         to_copy = ''
         for i in range(len(x_peak)):
             to_copy += str(x_peak[i])
             to_copy += '\t'
             to_copy += str(y_peak[i])
+            to_copy += '\n'
+        clipboard.copy(to_copy)
+
+    def copy_all(event):
+        global x, y
+        to_copy = ''
+        for i in range(len(x)):
+            to_copy += str(x)
+            to_copy += '\t'
+            to_copy += str(y)
             to_copy += '\n'
         clipboard.copy(to_copy)
 
@@ -168,8 +178,11 @@ def main():
         ax1.plot(x, y, 'k--', label='original')
         ax1.set_xlim(ax1.get_xlim()[::-1])
         ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
-        b_copy = bt(ax_copy, 'Copy')
-        b_copy.on_clicked(copy)
+        b_copy = bt(ax_copy, 'Copy all')
+        b_copy.on_clicked(copy_all)
+        ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
+        b_copy_p = bt(ax_copy_p, 'Copy peak')
+        b_copy_p.on_clicked(copy_peak)
         x_np = np.array(x)
         y_np = np.array(y)
 
