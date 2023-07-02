@@ -77,9 +77,6 @@ def main():
     def start():
         global x_peak, y_peak
         nonlocal amp, cen, sigma
-        print(amp)
-        print(cen)
-        print(sigma)
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
         input1 = str(lb1.get(1))
@@ -300,7 +297,7 @@ def main():
             fit = func(x_peak, *popt)
             ax1.plot(x_peak, fit, 'g-')
             gac = []
-            print(popt)
+            print('center--amplitude--sigma')
             for ii in range(len(amp)):
                 a = []
                 a.append(float(popt[ii*3]))
@@ -308,7 +305,6 @@ def main():
                 a.append(float(popt[ii*3 + 2]))
                 a = np.array(a)
                 print(a)
-                print(type(a))
                 gac.append(func(x_peak, *a))
                 ax1.plot(x_peak, gac[ii], 'y-')
         pyplot.show()
