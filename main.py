@@ -9,6 +9,9 @@ import pdfplumber
 from scipy.optimize import curve_fit
 import clipboard
 
+base_color = 'b', 'r', 'g', 'k'
+plot_number = 0
+
 
 def main():
     def clear_noc():
@@ -57,7 +60,7 @@ def main():
             clipboard.copy(to_copy)
 
         nonlocal amp, cen, sigma
-        global ax1
+        global ax1, plot_number
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
         input1 = str(lb1.get(1))
@@ -155,9 +158,11 @@ def main():
             y[i] = y[i] / y_max
 
         index_max = y.index(max(y))
+        plot_number += 1
         if bool(do_new.get()):
             fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1 = axes
+            plot_number = 0
         ax1.plot(x, y, 'k--', label='original')
         if bool(do_new.get()):
             ax1.set_xlim(ax1.get_xlim()[::-1])
@@ -211,7 +216,7 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        ax1.plot(x_line, y_line, 'xr-')
+        ax1.plot(x_line, y_line, 'x' + str(base_color[plot_number % len(base_color)]) + '--')
         # ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
 
         x_peak = []
@@ -261,7 +266,7 @@ def main():
             print('number of slices = ' + str(len(x_pe) - 1))
 
         calculate_peak(x_peak, y_peak)
-        ax1.plot(x_peak, y_peak, 'b-')
+        ax1.plot(x_peak, y_peak, str(base_color[plot_number % len(base_color)]) + '-')
         if len(amp) > 0:
 
             def func(x1, *params):
