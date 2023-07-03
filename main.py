@@ -37,28 +37,25 @@ def main():
         clear_noc()
         lb2.delete(1, END)
 
-    def copy_peak(event):
-        global x_peak, y_peak
-        to_copy = ''
-        for i in range(len(x_peak)):
-            to_copy += str(x_peak[i])
-            to_copy += '\t'
-            to_copy += str(y_peak[i])
-            to_copy += '\n'
-        clipboard.copy(to_copy)
-
-    def copy_all(event):
-        global x, y
-        to_copy = ''
-        for i in range(len(x)):
-            to_copy += str(x)
-            to_copy += '\t'
-            to_copy += str(y)
-            to_copy += '\n'
-        clipboard.copy(to_copy)
-
     def start():
-        global x_peak, y_peak
+        def copy_all(event):
+            to_copy = ''
+            for k in range(len(x)):
+                to_copy += str(x[k])
+                to_copy += '\t'
+                to_copy += str(y[k])
+                to_copy += '\n'
+            clipboard.copy(to_copy)
+
+        def copy_peak(event):
+            to_copy = ''
+            for k in range(len(x_peak)):
+                to_copy += str(x_peak[k])
+                to_copy += '\t'
+                to_copy += str(y_peak[k])
+                to_copy += '\n'
+            clipboard.copy(to_copy)
+
         nonlocal amp, cen, sigma
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
@@ -151,7 +148,7 @@ def main():
         for i in range(len(y)):
             y_fix = 1
             if bool(do_fix.get()) and i > 0:
-                y_fix = ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i-1]) / (vol[i] - vol[i-1]))
+                y_fix = ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i - 1]) / (vol[i] - vol[i - 1]))
             y[i] = y[i] * y_fix
 
         index_max = y.index(max(y))
@@ -237,7 +234,7 @@ def main():
             sa_d_m = []
 
             for ci in range(len(x_pe) - 1):
-                m_avg.append((10**x_pe[ci] + 10**x_pe[ci + 1]) / 2)
+                m_avg.append((10 ** x_pe[ci] + 10 ** x_pe[ci + 1]) / 2)
                 slice_start.append(x_pe[ci])
                 slice_end.append(x_pe[ci + 1])
                 slice_avg.append((slice_start[ci] + slice_end[ci]) / 2)
@@ -268,7 +265,7 @@ def main():
                     ctr1 = params[i]
                     amp1 = params[i + 1]
                     wid1 = params[i + 2]
-                    y1 = y1 + amp1 * np.exp(-0.5*((x1 - ctr1) / wid1) ** 2)
+                    y1 = y1 + amp1 * np.exp(-0.5 * ((x1 - ctr1) / wid1) ** 2)
                 return y1
 
             guess = []
@@ -285,9 +282,9 @@ def main():
             print('center--amplitude--sigma')
             for ii in range(len(amp)):
                 a = []
-                a.append(float(popt[ii*3]))
-                a.append(float(popt[ii*3+1]))
-                a.append(float(popt[ii*3 + 2]))
+                a.append(float(popt[ii * 3]))
+                a.append(float(popt[ii * 3 + 1]))
+                a.append(float(popt[ii * 3 + 2]))
                 a = np.array(a)
                 print(a)
                 gac.append(func(x_peak, *a))
