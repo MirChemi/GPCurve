@@ -10,6 +10,7 @@ from scipy.optimize import curve_fit
 import clipboard
 
 base_color = 'b', 'r', 'g', 'k'
+gauss_color = 'cyan', 'magenta', 'yellow'
 plot_number = 0
 
 
@@ -287,7 +288,7 @@ def main():
 
             popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, maxfev=100000)
             fit = func(x_peak, *popt)
-            ax1.plot(x_peak, fit, 'g-')
+            ax1.plot(x_peak, fit, color='orange')
             gac = []
             print('center--amplitude--sigma')
             for ii in range(len(amp)):
@@ -299,7 +300,7 @@ def main():
                 print(a)
                 gac.append(func(x_peak, *a))
                 calculate_peak(x_peak, gac[ii])
-                ax1.plot(x_peak, gac[ii], 'y-')
+                ax1.plot(x_peak, gac[ii], color=gauss_color[ii % len(gauss_color)])
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
