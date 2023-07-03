@@ -142,14 +142,17 @@ def main():
         y_min = min(y)
         for i in range(len(y)):
             y[i] = y[i] - y_min
-        y_max = max(y)
-        for i in range(len(y)):
-            y[i] = y[i] / y_max
+
         for i in range(len(y)):
             y_fix = 1
             if bool(do_fix.get()) and i > 0:
                 y_fix = ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i - 1]) / (vol[i] - vol[i - 1]))
             y[i] = y[i] * y_fix
+
+        y_max = max(y)
+        for i in range(len(y)):
+            y[i] = y[i] / y_max
+
 
         index_max = y.index(max(y))
         fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
