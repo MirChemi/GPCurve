@@ -8,10 +8,13 @@ import numpy as np
 import pdfplumber
 from scipy.optimize import curve_fit
 import clipboard
+from colorama import just_fix_windows_console
+from termcolor import cprint
 
-base_color = 'b', 'r', 'g', 'k'
+base_color = 'blue', 'red', 'green', 'black'
 gauss_color = 'cyan', 'magenta', 'yellow'
 plot_number = 0
+just_fix_windows_console()
 
 
 def main():
@@ -217,7 +220,7 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        ax1.plot(x_line, y_line, 'x' + str(base_color[plot_number % len(base_color)]) + '--')
+        ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)])
         # ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
 
         x_peak = []
@@ -231,7 +234,16 @@ def main():
             m_peak.append(10 ** x[i + index_left_min])
             y_peak.append(y[i + index_left_min] - (k_line * x[i + index_left_min] + b_line))
 
-        def calculate_peak(x_pe, y_pe):
+        def calculate_peak(x_pe, y_pe, text_color, back_color):
+
+            if text_color == 'magenta':
+                text_color = 'light_magenta'
+
+            if text_color == 'cyan':
+                text_color = 'light_cyan'
+
+            if text_color == 'yellow':
+                text_color = 'light_yellow'
 
             m_avg = []
             slice_start = []
@@ -260,14 +272,14 @@ def main():
             m_w = sum(sa_m) / sum(slice_area)
             mwd = m_w / m_n
 
-            print('Mn = ' + str(m_n))
-            print('Mw = ' + str(m_w))
-            print('Mw/Mn = ' + str(mwd))
-            print('peak area = ' + str(sum(slice_area)))
-            print('number of slices = ' + str(len(x_pe) - 1))
+            cprint('Mn = ' + str(m_n), text_color, back_color)
+            cprint('Mw = ' + str(m_w), text_color, back_color)
+            cprint('Mw/Mn = ' + str(mwd), text_color, back_color)
+            cprint('peak area = ' + str(sum(slice_area)), text_color, back_color)
+            cprint('number of slices = ' + str(len(x_pe) - 1), text_color, back_color)
 
-        calculate_peak(x_peak, y_peak)
-        ax1.plot(x_peak, y_peak, str(base_color[plot_number % len(base_color)]) + '-')
+        calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)], 'on_white')
+        ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
         if len(amp) > 0:
 
             def func(x1, *params):
@@ -289,6 +301,7 @@ def main():
             popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, maxfev=100000)
             fit = func(x_peak, *popt)
             ax1.plot(x_peak, fit, color='orange')
+            calculate_peak(x_peak, fit, 'light_red', 'on_black')
             gac = []
             print('center--amplitude--sigma')
             for ii in range(len(amp)):
@@ -299,7 +312,7 @@ def main():
                 a = np.array(a)
                 print(a)
                 gac.append(func(x_peak, *a))
-                calculate_peak(x_peak, gac[ii])
+                calculate_peak(x_peak, gac[ii], gauss_color[ii % len(gauss_color)], 'on_black')
                 ax1.plot(x_peak, gac[ii], color=gauss_color[ii % len(gauss_color)])
         pyplot.show()
 
