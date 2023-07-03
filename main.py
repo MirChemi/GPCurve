@@ -304,7 +304,7 @@ def main():
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
-    root.geometry("350x300")
+    root.geometry("400x300")
 
     for c in range(3):
         root.columnconfigure(index=c, weight=1)
