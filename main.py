@@ -11,28 +11,6 @@ import clipboard
 
 
 def main():
-    def clear():
-        nonlocal number_gauss, amp, cen, sigma
-        lb1.delete(1, END)
-        lb2.delete(1, END)
-        entry_ff.delete(0, END)
-        entry_ff.insert(0, '6,00')
-        entry_sf.delete(0, END)
-        entry_sf.insert(0, '10,00')
-        entry_sp.delete(0, END)
-        entry_sp.insert(0, 'auto')
-        entry_ep.delete(0, END)
-        entry_ep.insert(0, 'auto')
-        entry_sb.delete(0, END)
-        entry_sb.insert(0, 'auto')
-        entry_eb.delete(0, END)
-        entry_eb.insert(0, 'auto')
-        number_gauss = 0
-        button_gauss.config(text=f"ADD GAUSS({number_gauss})")
-        amp = []
-        cen = []
-        sigma = []
-
     def clear_noc():
         nonlocal number_gauss, amp, cen, sigma
         lb1.delete(1, END)
@@ -53,6 +31,11 @@ def main():
         amp = []
         cen = []
         sigma = []
+
+    def clear():
+        nonlocal number_gauss, amp, cen, sigma
+        clear_noc()
+        lb2.delete(1, END)
 
     def copy_peak(event):
         global x_peak, y_peak
