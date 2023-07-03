@@ -57,6 +57,7 @@ def main():
             clipboard.copy(to_copy)
 
         nonlocal amp, cen, sigma
+        global ax1
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
         input1 = str(lb1.get(1))
@@ -139,32 +140,33 @@ def main():
             x.append(lgm)
             y.append(float(li[2]))
 
-        y_min = min(y)
-        for i in range(len(y)):
-            y[i] = y[i] - y_min
-
         for i in range(len(y)):
             y_fix = 1
             if bool(do_fix.get()) and i > 0:
-                y_fix = ((x[1] - x[0]) / (vol[1] - vol[0])) / ((x[i] - x[i - 1]) / (vol[i] - vol[i - 1]))
+                y_fix = abs(vol[i] - vol[i - 1]) / abs(x[i] - x[i - 1])
             y[i] = y[i] * y_fix
+
+        y_min = min(y)
+        for i in range(len(y)):
+            y[i] = y[i] - y_min
 
         y_max = max(y)
         for i in range(len(y)):
             y[i] = y[i] / y_max
 
-
         index_max = y.index(max(y))
-        fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
-        ax1 = axes
+        if bool(do_new.get()):
+            fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
+            ax1 = axes
         ax1.plot(x, y, 'k--', label='original')
-        ax1.set_xlim(ax1.get_xlim()[::-1])
-        ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
-        b_copy = bt(ax_copy, 'Copy all')
-        b_copy.on_clicked(copy_all)
-        ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
-        b_copy_p = bt(ax_copy_p, 'Copy peak')
-        b_copy_p.on_clicked(copy_peak)
+        if bool(do_new.get()):
+            ax1.set_xlim(ax1.get_xlim()[::-1])
+            ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
+            b_copy = bt(ax_copy, 'Copy all')
+            b_copy.on_clicked(copy_all)
+            ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
+            b_copy_p = bt(ax_copy_p, 'Copy peak')
+            b_copy_p.on_clicked(copy_peak)
         x_np = np.array(x)
         y_np = np.array(y)
 
@@ -175,7 +177,7 @@ def main():
             index_left_min = index_max
             flag = True
             while flag:
-                if y[index_left_min - 1] <= y[index_left_min]:
+                if y[index_left_min - 2] <= y[index_left_min]:
                     index_left_min -= 1
                 else:
                     flag = False
@@ -187,7 +189,7 @@ def main():
             index_right_min = index_max
             flag = True
             while flag:
-                if y[index_right_min + 1] <= y[index_right_min]:
+                if y[index_right_min + 2] <= y[index_right_min]:
                     index_right_min += 1
                 else:
                     flag = False
@@ -322,13 +324,13 @@ def main():
     lb2.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
 
     button_start = Button(root, text="START", command=start)
-    button_start.grid(column=0, row=4, rowspan=2, sticky="news")
+    button_start.grid(column=0, row=4, sticky="news")
 
     button_clear = Button(root, text="CLEAR", command=clear)
-    button_clear.grid(column=0, row=6, sticky="news")
+    button_clear.grid(column=0, row=5, sticky="news")
 
     button_clear_noc = Button(root, text="CLEAR -C", command=clear_noc)
-    button_clear_noc.grid(column=0, row=7, sticky="news")
+    button_clear_noc.grid(column=0, row=6, sticky="news")
 
     number_gauss = 0
 
@@ -396,11 +398,15 @@ def main():
         button.grid(column=1, row=3, sticky="news")
 
     button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
-    button_gauss.grid(column=0, row=8, sticky="news")
+    button_gauss.grid(column=0, row=7, sticky="news")
 
     do_fix = IntVar()
     fix_cb = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
-    fix_cb.grid(column=0, row=9, sticky="news")
+    fix_cb.grid(column=0, row=8, sticky="news")
+
+    do_new = IntVar()
+    new_cb = ttk.Checkbutton(text="new figure", variable=do_new)
+    new_cb.grid(column=0, row=9, sticky="news")
 
     label_first_flag = ttk.Label(text="first flag")
     label_first_flag.configure(anchor="center")
