@@ -220,7 +220,7 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)])
+        ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
         # ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
 
         x_peak = []
@@ -419,11 +419,11 @@ def main():
     button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
     button_gauss.grid(column=0, row=7, sticky="news")
 
-    do_fix = IntVar()
+    do_fix = IntVar(value=1)
     fix_cb = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
     fix_cb.grid(column=0, row=8, sticky="news")
 
-    do_new = IntVar()
+    do_new = IntVar(value=1)
     new_cb = ttk.Checkbutton(text="new figure", variable=do_new)
     new_cb.grid(column=0, row=9, sticky="news")
 
