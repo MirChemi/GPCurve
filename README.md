@@ -17,6 +17,7 @@ Tips
 5) uncheck 'new figure' to locate spectra on the same picture
 6) peaks characteristics are shown in console
 7) 'fix lg intensity' corrects nonlinear dependency between lgM and vol
+8) -C - don't touch constants file/folder
 
 
 Have fun).
