@@ -221,7 +221,6 @@ def main():
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
         ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
-        # ax1.fill_between(x, y, y_base, where=(x >= x[index_right_min]) & (x <= x[index_left_min]), color='red')
 
         x_peak = []
         vol_peak = []
