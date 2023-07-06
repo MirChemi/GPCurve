@@ -19,7 +19,7 @@ def main():
     try:
         just_fix_windows_console()
     except:
-        print("Can't fix windows console")
+        print("Can't fix windows console for colored text")
 
     def clear_noc():
         nonlocal number_gauss, amp, cen, sigma
