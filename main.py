@@ -11,13 +11,16 @@ import clipboard
 from colorama import just_fix_windows_console
 from termcolor import cprint
 
-base_color = 'blue', 'red', 'green', 'black'
-gauss_color = 'cyan', 'magenta', 'yellow'
-plot_number = 0
-just_fix_windows_console()
-
 
 def main():
+    base_color = 'blue', 'red', 'green', 'black'
+    gauss_color = 'cyan', 'magenta', 'yellow'
+    plot_number = 0
+    try:
+        just_fix_windows_console()
+    except:
+        print("Can't fix windows console")
+
     def clear_noc():
         nonlocal number_gauss, amp, cen, sigma
         lb1.delete(1, END)
