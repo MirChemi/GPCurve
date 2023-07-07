@@ -11,13 +11,13 @@ import clipboard
 from colorama import just_fix_windows_console
 from termcolor import cprint
 
+base_color = 'blue', 'red', 'green', 'black'
+gauss_color = 'cyan', 'magenta', 'yellow'
+plot_number = 0
+
 
 def main():
 
-    global plot_number
-    base_color = 'blue', 'red', 'green', 'black'
-    gauss_color = 'cyan', 'magenta', 'yellow'
-    plot_number = 0
     try:
         just_fix_windows_console()
     except:
