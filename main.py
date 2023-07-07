@@ -13,6 +13,8 @@ from termcolor import cprint
 
 
 def main():
+
+    global plot_number
     base_color = 'blue', 'red', 'green', 'black'
     gauss_color = 'cyan', 'magenta', 'yellow'
     plot_number = 0
