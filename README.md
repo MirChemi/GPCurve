@@ -15,9 +15,10 @@ Tips
 3) colored dashdot - baseline
 4) colored line - peak
 5) uncheck 'new figure' to locate spectra on the same picture
-6) peaks characteristics are shown in console
+6) use 'ADD GAUSS' button to fit gauss curve(s) with spectra
 7) 'fix lg intensity' corrects nonlinear dependency between lgM and vol
 8) -C - don't touch constants file/folder
+9) peaks characteristics are shown in console
 
 
 Have fun).
