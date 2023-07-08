@@ -276,10 +276,10 @@ def main():
             m_w = sum(sa_m) / sum(slice_area)
             mwd = m_w / m_n
 
-            cprint('Mn = ' + str(m_n), text_color, back_color)
-            cprint('Mw = ' + str(m_w), text_color, back_color)
-            cprint('Mw/Mn = ' + str(mwd), text_color, back_color)
-            cprint('peak area = ' + str(sum(slice_area)), text_color, back_color)
+            cprint('Mn = ' + str(round(m_n)), text_color, back_color)
+            cprint('Mw = ' + str(round(m_w)), text_color, back_color)
+            cprint('Mw/Mn = ' + str(round(mwd, 3)), text_color, back_color)
+            cprint('peak area = ' + str(round(sum(slice_area), 4)), text_color, back_color)
             cprint('number of slices = ' + str(len(x_pe) - 1), text_color, back_color)
 
         calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)], 'on_white')
