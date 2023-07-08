@@ -11,14 +11,14 @@ To use this program:
 
 Tips
 1) Graphs are lgM scaled
-2) black dash - bulk data
-3) colored dashdot - baseline
-4) colored line - peak
-5) uncheck 'new figure' to locate spectra on the same picture
-6) use 'ADD GAUSS' button to fit gauss curve(s) with spectra
+2) Black dash - bulk data
+3) Colored dashdot - baseline
+4) Colored line - peak
+5) Uncheck 'new figure' to locate spectra on the same picture
+6) Use 'ADD GAUSS' button to fit gauss curve(s) with spectra
 7) 'fix lg intensity' corrects nonlinear dependency between lgM and vol
 8) -C - don't touch constants file/folder
-9) peaks characteristics are shown in console
+9) Peaks characteristics are shown in console
 
 
 Have fun).
