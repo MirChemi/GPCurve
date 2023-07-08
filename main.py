@@ -10,6 +10,8 @@ from scipy.optimize import curve_fit
 import clipboard
 from colorama import just_fix_windows_console
 from termcolor import cprint
+import csv
+from itertools import zip_longest
 
 base_color = 'blue', 'red', 'green', 'black'
 gauss_color = 'cyan', 'magenta', 'yellow'
@@ -67,6 +69,28 @@ def main():
                 to_copy += str(y_peak[k])
                 to_copy += '\n'
             clipboard.copy(to_copy)
+
+        def all_to_csv(event):
+            inp1 = str(lb1.get(1))
+            csv_name = inp1.replace('.txt', '_GPCurve.csv')
+            csv_data = [x, y, x_peak, y_peak]
+            header_list = ['x_spectra', 'y_spectra', 'x_peak', 'y_peak']
+            if len(amp) > 0:
+                csv_data.append(x_peak)
+                header_list.append('x_fit')
+                csv_data.append(fit)
+                header_list.append('y_fit')
+                for ga_number in range(len(amp)):
+                    csv_data.append(x_peak)
+                    header_list.append('x_gauss_' + str(ga_number + 1))
+                    csv_data.append(gac[ga_number])
+                    header_list.append('y_gauss_' + str(ga_number + 1))
+
+            csv_data1 = zip_longest(*csv_data, fillvalue='')
+            with open(csv_name, 'w', ) as fil:
+                writer = csv.writer(fil)
+                writer.writerow(header_list)
+                writer.writerows(csv_data1)
 
         nonlocal amp, cen, sigma
         global ax1, plot_number
@@ -181,6 +205,9 @@ def main():
             ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
             b_copy_p = bt(ax_copy_p, 'Copy peak')
             b_copy_p.on_clicked(copy_peak)
+            ax_copy_a = fig.add_axes([0.9, 0.4, 0.1, 0.075])
+            b_copy_a = bt(ax_copy_a, 'Save to csv')
+            b_copy_a.on_clicked(all_to_csv)
         x_np = np.array(x)
         y_np = np.array(y)
 

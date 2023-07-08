@@ -18,7 +18,8 @@ Tips
 6) Use 'ADD GAUSS' button to fit gauss curve(s) with spectra
 7) 'fix lg intensity' corrects nonlinear dependency between lgM and vol
 8) -C - don't touch constants file/folder
-9) Peaks characteristics are shown in console
+9) 'Save to csv' button saves to folder with xxx.pdf and xxx.txt
+10) Peaks characteristics are shown in console
 
 
 Have fun).
