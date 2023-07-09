@@ -12,6 +12,9 @@ from colorama import just_fix_windows_console
 from termcolor import cprint
 import csv
 from itertools import zip_longest
+from statistics import mean
+
+import config
 
 base_color = 'blue', 'red', 'green', 'black'
 gauss_color = 'cyan', 'magenta', 'yellow'
@@ -19,7 +22,6 @@ plot_number = 0
 
 
 def main():
-
     try:
         just_fix_windows_console()
     except:
@@ -91,6 +93,28 @@ def main():
                 writer = csv.writer(fil)
                 writer.writerow(header_list)
                 writer.writerows(csv_data1)
+
+        def show_sec_der(event):
+            x_der = []
+            y_der = []
+            for u in range(1, len(x) - 1):
+                x_der.append(x[u])
+                dy1 = (y[u] - y[u - 1]) / (x[u] - x[u - 1])
+                dy2 = (y[u + 1] - y[u]) / (x[u + 1] - x[u])
+                y_der.append((dy2 - dy1) / ((x[u + 1] - x[u - 1]) / 2))
+            x_der_av = []
+            y_der_av = []
+            step = config.der_smoothing_level
+            for u in range(0, len(x_der), step):
+                x_der_av.append(mean(x_der[u:u + step - 1]))
+                y_der_av.append(mean(y_der[u:u + step - 1]))
+            x_de = np.array(x_der_av)
+            y_de = np.array(y_der_av)
+            fig_d, axes_d = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
+            ax1_d = axes_d
+            ax1_d.scatter(x_de, y_de)
+            pyplot.show()
+
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
@@ -202,12 +226,18 @@ def main():
             ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
             b_copy = bt(ax_copy, 'Copy\nspectra')
             b_copy.on_clicked(copy_all)
+
             ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
             b_copy_p = bt(ax_copy_p, 'Copy\npeak')
             b_copy_p.on_clicked(copy_peak)
+
             ax_copy_a = fig.add_axes([0.9, 0.4, 0.1, 0.075])
             b_copy_a = bt(ax_copy_a, 'Save\nto csv')
             b_copy_a.on_clicked(all_to_csv)
+
+            ax_der = fig.add_axes([0.9, 0.5, 0.1, 0.075])
+            b_der = bt(ax_der, 'Show\n2nd der')
+            b_der.on_clicked(show_sec_der)
         x_np = np.array(x)
         y_np = np.array(y)
 
