@@ -1,4 +1,4 @@
 .idea
-.lnk
+*.lnk
 /Test*
 const.txt
