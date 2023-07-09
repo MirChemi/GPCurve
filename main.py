@@ -26,7 +26,7 @@ def main():
         print("Can't fix windows console for colored text")
 
     def clear_noc():
-        nonlocal number_gauss, amp, cen, sigma
+        nonlocal number_gauss, amp, cen, lock_cen, sigma
         lb1.delete(1, END)
         entry_ff.delete(0, END)
         entry_ff.insert(0, '6,00')
@@ -44,10 +44,10 @@ def main():
         button_gauss.config(text=f"ADD GAUSS({number_gauss})")
         amp = []
         cen = []
+        lock_cen = []
         sigma = []
 
     def clear():
-        nonlocal number_gauss, amp, cen, sigma
         clear_noc()
         lb2.delete(1, END)
 
@@ -92,7 +92,7 @@ def main():
                 writer.writerow(header_list)
                 writer.writerows(csv_data1)
 
-        nonlocal amp, cen, sigma
+        nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
         flag1 = str(entry_ff.get())
         flag2 = str(entry_sf.get())
@@ -323,13 +323,27 @@ def main():
                 return y1
 
             guess = []
+            down_bounds = []
+            up_bounds = []
+            eps = 0.000000000000001
             for i in range(len(amp)):
                 guess.append(cen[i])
-                guess.append(amp[i])
-                guess.append(sigma[i])
-            print(guess)
+                if lock_cen[i]:
+                    down_bounds.append(cen[i] - eps)
+                    up_bounds.append(cen[i] + eps)
+                else:
+                    down_bounds.append(-np.inf)
+                    up_bounds.append(np.inf)
 
-            popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, maxfev=100000)
+                guess.append(amp[i])
+                down_bounds.append(-np.inf)
+                up_bounds.append(np.inf)
+
+                guess.append(sigma[i])
+                down_bounds.append(-np.inf)
+                up_bounds.append(np.inf)
+
+            popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, bounds=[down_bounds, up_bounds], maxfev=100000)
             fit = func(x_peak, *popt)
             ax1.plot(x_peak, fit, color='orange')
             calculate_peak(x_peak, fit, 'light_red', 'on_black')
@@ -386,13 +400,15 @@ def main():
 
     amp = []
     cen = []
+    lock_cen = []
     sigma = []
 
     def del_gauss(top):
-        nonlocal number_gauss, amp, cen, sigma
+        nonlocal number_gauss, amp, cen, lock_cen, sigma
         top.destroy()
         amp = []
         cen = []
+        lock_cen = []
         sigma = []
         number_gauss = 0
         button_gauss.config(text=f"ADD GAUSS({number_gauss})")
@@ -400,9 +416,10 @@ def main():
     def popup_gauss():
 
         def close_gauss(top):
-            nonlocal number_gauss, amp, cen, sigma
+            nonlocal number_gauss, amp, cen, lock_cen, sigma
             amp.append(float(entry_amp.get()))
             cen.append(float(entry_cen.get()))
+            lock_cen.append(bool(is_lock.get()))
             sigma.append(float(entry_sigma.get()))
             top.destroy()
             number_gauss += 1
@@ -410,9 +427,9 @@ def main():
 
         # Create a Toplevel window
         top = Toplevel(root)
-        top.geometry("200x200")
+        top.geometry("250x150")
 
-        for gc in range(2):
+        for gc in range(3):
             top.columnconfigure(index=gc, weight=1)
         for gr in range(4):
             top.rowconfigure(index=gr, weight=1)
@@ -441,11 +458,17 @@ def main():
         entry_sigma.insert(0, '0.1')
         entry_sigma.grid(column=1, row=2)
 
+        is_lock = IntVar(value=0)
+        lock_cb = ttk.Checkbutton(top, text="lock", variable=is_lock)
+        lock_cb.grid(column=2, row=1, sticky="news")
+
         button = Button(top, text="Ok", command=lambda: close_gauss(top))
         button.grid(column=0, row=3, sticky="news")
 
         button = Button(top, text="Del gauss", command=lambda: del_gauss(top))
         button.grid(column=1, row=3, sticky="news")
+
+        top.mainloop()
 
     button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
     button_gauss.grid(column=0, row=7, sticky="news")
