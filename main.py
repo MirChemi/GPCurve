@@ -31,9 +31,9 @@ def main():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
         lb1.delete(1, END)
         entry_ff.delete(0, END)
-        entry_ff.insert(0, '6,00')
+        entry_ff.insert(0, config.first_flag)
         entry_sf.delete(0, END)
-        entry_sf.insert(0, '10,00')
+        entry_sf.insert(0, config.second_flag)
         entry_sp.delete(0, END)
         entry_sp.insert(0, 'auto')
         entry_ep.delete(0, END)
@@ -366,7 +366,7 @@ def main():
                     up_bounds.append(np.inf)
 
                 guess.append(amp[i])
-                down_bounds.append(-np.inf)
+                down_bounds.append(0)
                 up_bounds.append(np.inf)
 
                 guess.append(sigma[i])
@@ -503,7 +503,7 @@ def main():
     button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
     button_gauss.grid(column=0, row=7, sticky="news")
 
-    do_fix = IntVar(value=1)
+    do_fix = IntVar(value=0)
     fix_cb = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
     fix_cb.grid(column=0, row=8, sticky="news")
 
@@ -516,7 +516,7 @@ def main():
     label_first_flag.grid(column=1, row=4, sticky="news")
 
     entry_ff = Entry(root, width=10)
-    entry_ff.insert(0, '6,00')
+    entry_ff.insert(0, config.first_flag)
     entry_ff.grid(column=2, row=4)
 
     label_second_flag = ttk.Label(text="second flag")
@@ -524,7 +524,7 @@ def main():
     label_second_flag.grid(column=1, row=5, sticky="news")
 
     entry_sf = Entry(root, width=10)
-    entry_sf.insert(0, '10,00')
+    entry_sf.insert(0, config.second_flag)
     entry_sf.grid(column=2, row=5)
 
     label_sp = ttk.Label(text="start lgM(.)")
