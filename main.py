@@ -115,6 +115,24 @@ def main():
             ax1_d.scatter(x_de, y_de)
             pyplot.show()
 
+        def estimate_coef(x, y):
+            # number of observations/points
+            n = np.size(x)
+
+            # mean of x and y vector
+            m_x = np.mean(x)
+            m_y = np.mean(y)
+
+            # calculating cross-deviation and deviation about x
+            SS_xy = np.sum(y * x) - n * m_y * m_x
+            SS_xx = np.sum(x * x) - n * m_x * m_x
+
+            # calculating regression coefficients
+            b_1 = SS_xy / SS_xx
+            b_0 = m_y - b_1 * m_x
+
+            return b_0, b_1
+
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
@@ -190,20 +208,28 @@ def main():
         y = []
         if bool(do_fix.get()):
             print('lg intensity fixed')
+        if config.lin_calc:
+            print('lin_calc')
         for i in range(len(data)):
             data[i] = data[i].replace('\n', '')
             data[i] = data[i].replace(',', '.')
             li = data[i].split('\t')
             vl = float(li[0])
             vol.append(vl)
-            lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
+            if config.lin_calc:
+                b1 = (config.lgm2 - config.lgm1) / (config.vol2 - config.vol1)
+                b0 = config.lgm1 - b1 * config.vol1
+                # b0 = (config.vol2 * config.lgm1 - config.vol1 * config.lgm2) / (config.lgm2 - config.lgm1)
+                lgm = b0 + vl * b1
+            else:
+                lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
             x.append(lgm)
             y.append(float(li[2]))
 
         for i in range(len(y)):
             y_fix = 1
             if bool(do_fix.get()) and i > 0:
-                y_fix = abs(vol[i] - vol[i - 1]) / abs(x[i] - x[i - 1])
+                y_fix = (abs(vol[i] - vol[i - 1]) / abs(x[i] - x[i - 1]))**1
             y[i] = y[i] * y_fix
 
         y_min = min(y)
@@ -213,6 +239,20 @@ def main():
         y_max = max(y)
         for i in range(len(y)):
             y[i] = y[i] / y_max
+
+        if config.lin_approx:
+            vol_for_lin = []
+            lg_for_lin = []
+            for i in range(len(x)):
+                if y[i] > 0.1:
+                    vol_for_lin.append(vol[i])
+                    lg_for_lin.append(x[i])
+            b0, b1 = estimate_coef(np.array(vol_for_lin), np.array(lg_for_lin))
+            x = []
+            for i in range(len(vol)):
+                x.append(b0 + b1 * vol[i])
+
+
 
         index_max = y.index(max(y))
         plot_number += 1
