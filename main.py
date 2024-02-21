@@ -133,7 +133,6 @@ def main():
 
             return b_0, b_1
 
-
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
         flag1 = str(entry_flag1.get())
@@ -230,7 +229,7 @@ def main():
         for i in range(len(y)):
             y_fix = 1
             if bool(do_fix.get()) and i > 0:
-                y_fix = (abs(vol[i] - vol[i - 1]) / abs(x[i] - x[i - 1]))**1
+                y_fix = (abs(vol[i] - vol[i - 1]) / abs(x[i] - x[i - 1])) ** 1
             y[i] = y[i] * y_fix
 
         y_min = min(y)
