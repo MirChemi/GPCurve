@@ -1,7 +1,7 @@
 # 2nd derivative smoothing level (>=1, 1 - no smoothing)
 der_smoothing_level = 8
-first_flag = '5,501'
-second_flag = '9,501'
+flag1 = '5,501'
+flag2 = '9,501'
 
 # convert cubic lgm to volume dependency to linear
 lin_approx = False

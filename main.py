@@ -27,21 +27,21 @@ def main():
     except:
         print("Can't fix windows console for colored text")
 
-    def clear_noc():
+    def clear_c():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
-        lb1.delete(1, END)
-        entry_ff.delete(0, END)
-        entry_ff.insert(0, config.first_flag)
-        entry_sf.delete(0, END)
-        entry_sf.insert(0, config.second_flag)
-        entry_sp.delete(0, END)
-        entry_sp.insert(0, 'auto')
-        entry_ep.delete(0, END)
-        entry_ep.insert(0, 'auto')
-        entry_sb.delete(0, END)
-        entry_sb.insert(0, 'auto')
-        entry_eb.delete(0, END)
-        entry_eb.insert(0, 'auto')
+        listbox_data.delete(1, END)
+        entry_flag1.delete(0, END)
+        entry_flag1.insert(0, config.flag1)
+        entry_flag2.delete(0, END)
+        entry_flag2.insert(0, config.flag2)
+        entry_point1.delete(0, END)
+        entry_point1.insert(0, 'auto')
+        entry_point2.delete(0, END)
+        entry_point2.insert(0, 'auto')
+        entry_baseline1.delete(0, END)
+        entry_baseline1.insert(0, 'auto')
+        entry_baseline2.delete(0, END)
+        entry_baseline2.insert(0, 'auto')
         number_gauss = 0
         button_gauss.config(text=f"ADD GAUSS({number_gauss})")
         amp = []
@@ -50,31 +50,31 @@ def main():
         sigma = []
 
     def clear():
-        clear_noc()
-        lb2.delete(1, END)
+        clear_c()
+        listbox_const.delete(1, END)
 
     def start():
         def copy_all(event):
             to_copy = ''
-            for k in range(len(x)):
-                to_copy += str(x[k])
+            for i in range(len(x)):
+                to_copy += str(x[i])
                 to_copy += '\t'
-                to_copy += str(y[k])
+                to_copy += str(y[i])
                 to_copy += '\n'
             clipboard.copy(to_copy)
 
         def copy_peak(event):
             to_copy = ''
-            for k in range(len(x_peak)):
-                to_copy += str(x_peak[k])
+            for i in range(len(x_peak)):
+                to_copy += str(x_peak[i])
                 to_copy += '\t'
-                to_copy += str(y_peak[k])
+                to_copy += str(y_peak[i])
                 to_copy += '\n'
             clipboard.copy(to_copy)
 
         def all_to_csv(event):
-            inp1 = str(lb1.get(1))
-            csv_name = inp1.replace('.txt', '_GPCurve.csv')
+            data_filename = str(listbox_data.get(1))
+            csv_filename = data_filename.replace('.txt', '_GPCurve.csv')
             csv_data = [x, y, x_peak, y_peak]
             header_list = ['x_spectra', 'y_spectra', 'x_peak', 'y_peak']
             if len(amp) > 0:
@@ -82,37 +82,37 @@ def main():
                 header_list.append('x_fit')
                 csv_data.append(fit)
                 header_list.append('y_fit')
-                for ga_number in range(len(amp)):
+                for gauss_number in range(len(amp)):
                     csv_data.append(x_peak)
-                    header_list.append('x_gauss_' + str(ga_number + 1))
-                    csv_data.append(gac[ga_number])
-                    header_list.append('y_gauss_' + str(ga_number + 1))
+                    header_list.append('x_gauss_' + str(gauss_number + 1))
+                    csv_data.append(gac[gauss_number])
+                    header_list.append('y_gauss_' + str(gauss_number + 1))
 
-            csv_data1 = zip_longest(*csv_data, fillvalue='')
-            with open(csv_name, 'w', ) as fil:
-                writer = csv.writer(fil)
+            csv_data = zip_longest(*csv_data, fillvalue='')
+            with open(csv_filename, 'w', ) as f:
+                writer = csv.writer(f)
                 writer.writerow(header_list)
-                writer.writerows(csv_data1)
+                writer.writerows(csv_data)
 
         def show_sec_der(event):
             x_der = []
             y_der = []
-            for u in range(1, len(x) - 1):
-                x_der.append(x[u])
-                dy1 = (y[u] - y[u - 1]) / (x[u] - x[u - 1])
-                dy2 = (y[u + 1] - y[u]) / (x[u + 1] - x[u])
-                y_der.append((dy2 - dy1) / ((x[u + 1] - x[u - 1]) / 2))
-            x_der_av = []
-            y_der_av = []
+            for i in range(1, len(x) - 1):
+                x_der.append(x[i])
+                dy1 = (y[i] - y[i - 1]) / (x[i] - x[i - 1])
+                dy2 = (y[i + 1] - y[i]) / (x[i + 1] - x[i])
+                y_der.append((dy2 - dy1) / ((x[i + 1] - x[i - 1]) / 2))
+            x_der_smoothed = []
+            y_der_smoothed = []
             step = config.der_smoothing_level
-            for u in range(0, len(x_der), step):
-                x_der_av.append(mean(x_der[u:u + step - 1]))
-                y_der_av.append(mean(y_der[u:u + step - 1]))
-            x_de = np.array(x_der_av)
-            y_de = np.array(y_der_av)
+            for i in range(0, len(x_der), step):
+                x_der_smoothed.append(mean(x_der[i:i + step - 1]))
+                y_der_smoothed.append(mean(y_der[i:i + step - 1]))
+            x_der_smoothed = np.array(x_der_smoothed)
+            y_der_smoothed = np.array(y_der_smoothed)
             fig_d, axes_d = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1_d = axes_d
-            ax1_d.scatter(x_de, y_de)
+            ax1_d.scatter(x_der_smoothed, y_der_smoothed)
             pyplot.show()
 
         def estimate_coef(x, y):
@@ -136,10 +136,10 @@ def main():
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
-        flag1 = str(entry_ff.get())
-        flag2 = str(entry_sf.get())
-        input1 = str(lb1.get(1))
-        input2 = str(lb2.get(1))
+        flag1 = str(entry_flag1.get())
+        flag2 = str(entry_flag2.get())
+        input1 = str(listbox_data.get(1))
+        input2 = str(listbox_const.get(1))
         if input2 != '':
             with open('const.txt', 'w') as fi:
                 fi.write(input2)
@@ -188,7 +188,7 @@ def main():
             const.append(float(pre_const[i]))
         print('C0 - C3 = ' + str(const))
 
-        with open(lb1.get(1), encoding="utf8") as f:
+        with open(listbox_data.get(1), encoding="utf8") as f:
             print(str(f))
             data = f.readlines()
 
@@ -253,16 +253,14 @@ def main():
             for i in range(len(vol)):
                 x.append(b0 + b1 * vol[i])
 
-
-
         index_max = y.index(max(y))
         plot_number += 1
-        if bool(do_new.get()):
+        if bool(do_new_fig.get()):
             fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1 = axes
             plot_number = 0
         ax1.plot(x, y, 'k--', label='original')
-        if bool(do_new.get()):
+        if bool(do_new_fig.get()):
             ax1.set_xlim(ax1.get_xlim()[::-1])
             ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
             b_copy = bt(ax_copy, 'Copy\nspectra')
@@ -282,8 +280,8 @@ def main():
         x_np = np.array(x)
         y_np = np.array(y)
 
-        sp = str(entry_sp.get())
-        ep = str(entry_ep.get())
+        sp = str(entry_point1.get())
+        ep = str(entry_point2.get())
         count = 0
         if 'auto' in sp:
             index_left_min = index_max
@@ -314,8 +312,8 @@ def main():
         y_base = min(y_np[index_left_min], y_np[index_right_min])
         y_line = [y_base, y_base]
 
-        sb = str(entry_sb.get())
-        eb = str(entry_eb.get())
+        sb = str(entry_baseline1.get())
+        eb = str(entry_baseline2.get())
         if 'auto' not in sb:
             y_line[0] = float(sb)
         if 'auto' not in eb:
@@ -435,28 +433,29 @@ def main():
     root = TkinterDnD.Tk()  # instead of tk.Tk()
     root.geometry("400x300")
 
-    for c in range(3):
-        root.columnconfigure(index=c, weight=1)
-    for r in range(10):
-        root.rowconfigure(index=r, weight=1)
+    for i in range(3):
+        root.columnconfigure(index=i, weight=1)
+    for i in range(10):
+        root.rowconfigure(index=i, weight=1)
 
-    lb1 = tk.Listbox(root, width=10, height=1)
-    lb1.insert(1, "drag GPC txt data file")
-    lb1.drop_target_register(DND_FILES)
-    lb1.dnd_bind('<<Drop>>', lambda e: lb1.insert(tk.END, e.data))
-    lb1.grid(column=0, row=0, columnspan=3, rowspan=2, sticky="news")
+    listbox_data = tk.Listbox(root, width=10, height=1)
+    listbox_data.insert(1, "drag GPC txt data file")
+    listbox_data.drop_target_register(DND_FILES)
+    listbox_data.dnd_bind('<<Drop>>', lambda e: listbox_data.insert(tk.END, e.data))
+    listbox_data.grid(column=0, row=0, columnspan=3, rowspan=2, sticky="news")
 
-    lb2 = tk.Listbox(root, width=10, height=1)
-    lb2.insert(1, "drag constants pdf data file or folder")
+    listbox_const = tk.Listbox(root, width=10, height=1)
+    listbox_const.insert(1, "drag constants pdf data file or folder")
     try:
         with open('const.txt') as f:
             const_line = f.read()
-        lb2.insert(2, const_line)
+        listbox_const.insert(2, const_line)
     except:
         print("no const.txt file")
-    lb2.drop_target_register(DND_FILES)
-    lb2.dnd_bind('<<Drop>>', lambda e: lb2.insert(tk.END, e.data))
-    lb2.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
+
+    listbox_const.drop_target_register(DND_FILES)
+    listbox_const.dnd_bind('<<Drop>>', lambda e: listbox_const.insert(tk.END, e.data))
+    listbox_const.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
 
     button_start = Button(root, text="START", command=start)
     button_start.grid(column=0, row=4, sticky="news")
@@ -464,8 +463,8 @@ def main():
     button_clear = Button(root, text="CLEAR", command=clear)
     button_clear.grid(column=0, row=5, sticky="news")
 
-    button_clear_noc = Button(root, text="CLEAR -C", command=clear_noc)
-    button_clear_noc.grid(column=0, row=6, sticky="news")
+    button_clear_c = Button(root, text="CLEAR -C", command=clear_c)
+    button_clear_c.grid(column=0, row=6, sticky="news")
 
     number_gauss = 0
 
@@ -490,7 +489,7 @@ def main():
             nonlocal number_gauss, amp, cen, lock_cen, sigma
             amp.append(float(entry_amp.get()))
             cen.append(float(entry_cen.get()))
-            lock_cen.append(bool(is_lock.get()))
+            lock_cen.append(bool(is_locked.get()))
             sigma.append(float(entry_sigma.get()))
             top.destroy()
             number_gauss += 1
@@ -500,10 +499,10 @@ def main():
         top = Toplevel(root)
         top.geometry("250x150")
 
-        for gc in range(3):
-            top.columnconfigure(index=gc, weight=1)
-        for gr in range(4):
-            top.rowconfigure(index=gr, weight=1)
+        for i1 in range(3):
+            top.columnconfigure(index=i1, weight=1)
+        for i1 in range(4):
+            top.rowconfigure(index=i1, weight=1)
 
         label_amp = ttk.Label(top, text="amplitude")
         label_amp.configure(anchor="center")
@@ -529,15 +528,15 @@ def main():
         entry_sigma.insert(0, '0.1')
         entry_sigma.grid(column=1, row=2)
 
-        is_lock = IntVar(value=0)
-        lock_cb = ttk.Checkbutton(top, text="lock", variable=is_lock)
-        lock_cb.grid(column=2, row=1, sticky="news")
+        is_locked = IntVar(value=0)
+        checkbutton_lock = ttk.Checkbutton(top, text="lock", variable=is_locked)
+        checkbutton_lock.grid(column=2, row=1, sticky="news")
 
-        button = Button(top, text="Ok", command=lambda: close_gauss(top))
-        button.grid(column=0, row=3, sticky="news")
+        button_ok = Button(top, text="Ok", command=lambda: close_gauss(top))
+        button_ok.grid(column=0, row=3, sticky="news")
 
-        button = Button(top, text="Del gauss", command=lambda: del_gauss(top))
-        button.grid(column=1, row=3, sticky="news")
+        button_del = Button(top, text="Del gauss", command=lambda: del_gauss(top))
+        button_del.grid(column=1, row=3, sticky="news")
 
         top.mainloop()
 
@@ -545,60 +544,60 @@ def main():
     button_gauss.grid(column=0, row=7, sticky="news")
 
     do_fix = IntVar(value=0)
-    fix_cb = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
-    fix_cb.grid(column=0, row=8, sticky="news")
+    checkbutton_fix = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
+    checkbutton_fix.grid(column=0, row=8, sticky="news")
 
-    do_new = IntVar(value=1)
-    new_cb = ttk.Checkbutton(text="new figure", variable=do_new)
-    new_cb.grid(column=0, row=9, sticky="news")
+    do_new_fig = IntVar(value=1)
+    checkbutton_new = ttk.Checkbutton(text="new figure", variable=do_new_fig)
+    checkbutton_new.grid(column=0, row=9, sticky="news")
 
-    label_first_flag = ttk.Label(text="first flag")
-    label_first_flag.configure(anchor="center")
-    label_first_flag.grid(column=1, row=4, sticky="news")
+    label_flag1 = ttk.Label(text="first flag")
+    label_flag1.configure(anchor="center")
+    label_flag1.grid(column=1, row=4, sticky="news")
 
-    entry_ff = Entry(root, width=10)
-    entry_ff.insert(0, config.first_flag)
-    entry_ff.grid(column=2, row=4)
+    entry_flag1 = Entry(root, width=10)
+    entry_flag1.insert(0, config.flag1)
+    entry_flag1.grid(column=2, row=4)
 
-    label_second_flag = ttk.Label(text="second flag")
-    label_second_flag.configure(anchor="center")
-    label_second_flag.grid(column=1, row=5, sticky="news")
+    label_flag2 = ttk.Label(text="second flag")
+    label_flag2.configure(anchor="center")
+    label_flag2.grid(column=1, row=5, sticky="news")
 
-    entry_sf = Entry(root, width=10)
-    entry_sf.insert(0, config.second_flag)
-    entry_sf.grid(column=2, row=5)
+    entry_flag2 = Entry(root, width=10)
+    entry_flag2.insert(0, config.flag2)
+    entry_flag2.grid(column=2, row=5)
 
-    label_sp = ttk.Label(text="start lgM(.)")
-    label_sp.configure(anchor="center")
-    label_sp.grid(column=1, row=6, sticky="news")
+    label_point1 = ttk.Label(text="start lgM(.)")
+    label_point1.configure(anchor="center")
+    label_point1.grid(column=1, row=6, sticky="news")
 
-    entry_sp = Entry(root, width=10)
-    entry_sp.insert(0, 'auto')
-    entry_sp.grid(column=2, row=6)
+    entry_point1 = Entry(root, width=10)
+    entry_point1.insert(0, 'auto')
+    entry_point1.grid(column=2, row=6)
 
-    label_ep = ttk.Label(text="end lgM(.)")
-    label_ep.configure(anchor="center")
-    label_ep.grid(column=1, row=7, sticky="news")
+    label_point2 = ttk.Label(text="end lgM(.)")
+    label_point2.configure(anchor="center")
+    label_point2.grid(column=1, row=7, sticky="news")
 
-    entry_ep = Entry(root, width=10)
-    entry_ep.insert(0, 'auto')
-    entry_ep.grid(column=2, row=7)
+    entry_point2 = Entry(root, width=10)
+    entry_point2.insert(0, 'auto')
+    entry_point2.grid(column=2, row=7)
 
-    label_sb = ttk.Label(text="start base(.)")
-    label_sb.configure(anchor="center")
-    label_sb.grid(column=1, row=8, sticky="news")
+    label_baseline1 = ttk.Label(text="start base(.)")
+    label_baseline1.configure(anchor="center")
+    label_baseline1.grid(column=1, row=8, sticky="news")
 
-    entry_sb = Entry(root, width=10)
-    entry_sb.insert(0, 'auto')
-    entry_sb.grid(column=2, row=8)
+    entry_baseline1 = Entry(root, width=10)
+    entry_baseline1.insert(0, 'auto')
+    entry_baseline1.grid(column=2, row=8)
 
-    label_eb = ttk.Label(text="end base(.)")
-    label_eb.configure(anchor="center")
-    label_eb.grid(column=1, row=9, sticky="news")
+    label_baseline2 = ttk.Label(text="end base(.)")
+    label_baseline2.configure(anchor="center")
+    label_baseline2.grid(column=1, row=9, sticky="news")
 
-    entry_eb = Entry(root, width=10)
-    entry_eb.insert(0, 'auto')
-    entry_eb.grid(column=2, row=9)
+    entry_baseline2 = Entry(root, width=10)
+    entry_baseline2.insert(0, 'auto')
+    entry_baseline2.grid(column=2, row=9)
 
     root.mainloop()
 
