@@ -85,7 +85,7 @@ def main():
                 for gauss_number in range(len(amp)):
                     csv_data.append(x_peak)
                     header_list.append('x_gauss_' + str(gauss_number + 1))
-                    csv_data.append(gac[gauss_number])
+                    csv_data.append(gauss_curve[gauss_number])
                     header_list.append('y_gauss_' + str(gauss_number + 1))
 
             csv_data = zip_longest(*csv_data, fillvalue='')
@@ -124,11 +124,11 @@ def main():
             m_y = np.mean(y)
 
             # calculating cross-deviation and deviation about x
-            SS_xy = np.sum(y * x) - n * m_y * m_x
-            SS_xx = np.sum(x * x) - n * m_x * m_x
+            ss_xy = np.sum(y * x) - n * m_y * m_x
+            ss_xx = np.sum(x * x) - n * m_x * m_x
 
             # calculating regression coefficients
-            b_1 = SS_xy / SS_xx
+            b_1 = ss_xy / ss_xx
             b_0 = m_y - b_1 * m_x
 
             return b_0, b_1
@@ -219,7 +219,6 @@ def main():
             if config.lin_calc:
                 b1 = (config.lgm2 - config.lgm1) / (config.vol2 - config.vol1)
                 b0 = config.lgm1 - b1 * config.vol1
-                # b0 = (config.vol2 * config.lgm1 - config.vol1 * config.lgm2) / (config.lgm2 - config.lgm1)
                 lgm = b0 + vl * b1
             else:
                 lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
@@ -355,17 +354,17 @@ def main():
             sa_m = []
             sa_d_m = []
 
-            for ci in range(len(x_pe) - 1):
-                m_avg.append((10 ** x_pe[ci] + 10 ** x_pe[ci + 1]) / 2)
-                slice_start.append(x_pe[ci])
-                slice_end.append(x_pe[ci + 1])
-                slice_avg.append((slice_start[ci] + slice_end[ci]) / 2)
-                i_start.append(y_pe[ci])
-                i_end.append(y_pe[ci + 1])
-                i_avg.append((i_start[ci] + i_end[ci]) / 2)
-                slice_area.append(i_avg[ci] * abs(slice_end[ci] - slice_start[ci]))
-                sa_m.append(slice_area[ci] * m_avg[ci])
-                sa_d_m.append(slice_area[ci] / m_avg[ci])
+            for sl in range(len(x_pe) - 1):
+                m_avg.append((10 ** x_pe[sl] + 10 ** x_pe[sl + 1]) / 2)
+                slice_start.append(x_pe[sl])
+                slice_end.append(x_pe[sl + 1])
+                slice_avg.append((slice_start[sl] + slice_end[sl]) / 2)
+                i_start.append(y_pe[sl])
+                i_end.append(y_pe[sl + 1])
+                i_avg.append((i_start[sl] + i_end[sl]) / 2)
+                slice_area.append(i_avg[sl] * abs(slice_end[sl] - slice_start[sl]))
+                sa_m.append(slice_area[sl] * m_avg[sl])
+                sa_d_m.append(slice_area[sl] / m_avg[sl])
 
             m_n = sum(slice_area) / sum(sa_d_m)
             m_w = sum(sa_m) / sum(slice_area)
@@ -415,18 +414,15 @@ def main():
             fit = func(x_peak, *popt)
             ax1.plot(x_peak, fit, color='orange')
             calculate_peak(x_peak, fit, 'light_red', 'on_black')
-            gac = []
+            gauss_curve = []
             print('center--amplitude--sigma')
-            for ii in range(len(amp)):
-                a = []
-                a.append(float(popt[ii * 3]))
-                a.append(float(popt[ii * 3 + 1]))
-                a.append(float(popt[ii * 3 + 2]))
+            for i in range(len(amp)):
+                a = [float(popt[i * 3]), float(popt[i * 3 + 1]), float(popt[i * 3 + 2])]
                 a = np.array(a)
                 print(a)
-                gac.append(func(x_peak, *a))
-                calculate_peak(x_peak, gac[ii], gauss_color[ii % len(gauss_color)], 'on_black')
-                ax1.plot(x_peak, gac[ii], color=gauss_color[ii % len(gauss_color)])
+                gauss_curve.append(func(x_peak, *a))
+                calculate_peak(x_peak, gauss_curve[i], gauss_color[i % len(gauss_color)], 'on_black')
+                ax1.plot(x_peak, gauss_curve[i], color=gauss_color[i % len(gauss_color)])
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
