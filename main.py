@@ -188,7 +188,8 @@ def main():
             const.append(float(pre_const[i]))
         print('C0 - C3 = ' + str(const))
 
-        with open(lb1.get(1)) as f:
+        with open(lb1.get(1), encoding="utf8") as f:
+            print(str(f))
             data = f.readlines()
 
         finished = False
