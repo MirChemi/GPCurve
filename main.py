@@ -54,7 +54,7 @@ def main():
         listbox_const.delete(1, END)
 
     def start():
-        def copy_all(event):
+        def copy_spectra(event):
             to_copy = ''
             for i in range(len(x)):
                 to_copy += str(x[i])
@@ -102,14 +102,12 @@ def main():
                 dy1 = (y[i] - y[i - 1]) / (x[i] - x[i - 1])
                 dy2 = (y[i + 1] - y[i]) / (x[i + 1] - x[i])
                 y_der.append((dy2 - dy1) / ((x[i + 1] - x[i - 1]) / 2))
-            x_der_smoothed = []
-            y_der_smoothed = []
+            x_der_smoothed = np.empty(0)
+            y_der_smoothed = np.empty(0)
             step = config.der_smoothing_level
             for i in range(0, len(x_der), step):
-                x_der_smoothed.append(mean(x_der[i:i + step - 1]))
-                y_der_smoothed.append(mean(y_der[i:i + step - 1]))
-            x_der_smoothed = np.array(x_der_smoothed)
-            y_der_smoothed = np.array(y_der_smoothed)
+                x_der_smoothed = np.append(x_der_smoothed, mean(x_der[i:i + step - 1]))
+                y_der_smoothed = np.append(y_der_smoothed, mean(y_der[i:i + step - 1]))
             fig_d, axes_d = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1_d = axes_d
             ax1_d.scatter(x_der_smoothed, y_der_smoothed)
@@ -262,7 +260,7 @@ def main():
             ax1.set_xlim(ax1.get_xlim()[::-1])
             ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
             b_copy = bt(ax_copy, 'Copy\nspectra')
-            b_copy.on_clicked(copy_all)
+            b_copy.on_clicked(copy_spectra)
 
             ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
             b_copy_p = bt(ax_copy_p, 'Copy\npeak')
@@ -494,10 +492,10 @@ def main():
         top = Toplevel(root)
         top.geometry("250x150")
 
-        for i1 in range(3):
-            top.columnconfigure(index=i1, weight=1)
-        for i1 in range(4):
-            top.rowconfigure(index=i1, weight=1)
+        for i in range(3):
+            top.columnconfigure(index=i, weight=1)
+        for i in range(4):
+            top.rowconfigure(index=i, weight=1)
 
         label_amp = ttk.Label(top, text="amplitude")
         label_amp.configure(anchor="center")
