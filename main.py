@@ -280,10 +280,10 @@ def main():
         x_np = np.array(x)
         y_np = np.array(y)
 
-        sp = str(entry_point1.get())
-        ep = str(entry_point2.get())
+        point1 = str(entry_point1.get())
+        point2 = str(entry_point2.get())
         count = 0
-        if 'auto' in sp:
+        if 'auto' in point1:
             index_left_min = index_max
             flag = True
             while flag:
@@ -293,9 +293,9 @@ def main():
                     flag = False
         else:
             count = 1
-            index_left_min = x.index(min(x, key=lambda xx: abs(xx - float(sp))))
+            index_left_min = x.index(min(x, key=lambda xx: abs(xx - float(point1))))
 
-        if 'auto' in ep:
+        if 'auto' in point2:
             index_right_min = index_max
             flag = True
             while flag:
@@ -304,20 +304,20 @@ def main():
                 else:
                     flag = False
         else:
-            if count == 1 and sp <= ep:
+            if count == 1 and point1 <= point2:
                 raise 'start lgM must be greater then end lgM'
-            index_right_min = x.index(min(x, key=lambda xx: abs(xx - float(ep))))
+            index_right_min = x.index(min(x, key=lambda xx: abs(xx - float(point2))))
 
         x_line = x_np[index_left_min], x_np[index_right_min]
         y_base = min(y_np[index_left_min], y_np[index_right_min])
         y_line = [y_base, y_base]
 
-        sb = str(entry_baseline1.get())
-        eb = str(entry_baseline2.get())
-        if 'auto' not in sb:
-            y_line[0] = float(sb)
-        if 'auto' not in eb:
-            y_line[1] = float(eb)
+        baseline1 = str(entry_baseline1.get())
+        baseline2 = str(entry_baseline2.get())
+        if 'auto' not in baseline1:
+            y_line[0] = float(baseline1)
+        if 'auto' not in baseline2:
+            y_line[1] = float(baseline2)
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
