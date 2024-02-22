@@ -186,7 +186,6 @@ def main():
         print('C0 - C3 = ' + str(const))
 
         with open(listbox_data.get(1), encoding="utf8") as f:
-            print(str(f))
             data = f.readlines()
 
         finished = False
