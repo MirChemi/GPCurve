@@ -159,12 +159,16 @@ def main():
                 if 'Sequence' in str(prefix[i]):
                     prefix1 = str(prefix[i])
                     break
-            prefix1 = prefix1.split(' ')
+            prefix1 = prefix1.split(': ')
             for i in range(len(prefix1)):
                 if '(' in str(prefix1[i]):
                     pr = str(prefix1[i])
+                    if "RI" in pr:
+                        gpc_type = "RI"
+                    else:
+                        gpc_type = "UV"
                     break
-            prefix = pr[6] + pr[7] + pr[8] + pr[9] + pr[3] + pr[4] + pr[0] + pr[1] + pr[-3] + pr[-2]
+            prefix = pr[6] + pr[7] + pr[8] + pr[9] + pr[3] + pr[4] + pr[0] + pr[1] + gpc_type
             name2 = input2 + '/' + prefix + '.pdf'
         else:
             name2 = input2
