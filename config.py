@@ -3,6 +3,9 @@ der_smoothing_level = 8
 flag1 = '5,501'
 flag2 = '9,501'
 
+# clear plot with legend
+clear_plot = True
+
 # convert cubic lgm to volume dependency to linear
 lin_approx = False
 

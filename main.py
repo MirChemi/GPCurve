@@ -16,7 +16,7 @@ from statistics import mean
 
 import config
 
-base_color = 'blue', 'red', 'green', 'black'
+base_color = 'blue', 'red', 'green', 'black', 'cyan', 'magenta', 'yellow'
 gauss_color = 'cyan', 'magenta', 'yellow'
 plot_number = 0
 
@@ -136,6 +136,9 @@ def main():
         flag1 = str(entry_flag1.get())
         flag2 = str(entry_flag2.get())
         input1 = str(listbox_data.get(1))
+        ex_name = input1.split("/")[-1]
+        print(ex_name)
+        ex_name = ex_name.split(".")[0]
         input2 = str(listbox_const.get(1))
         if input2 != '':
             with open('const.txt', 'w') as fi:
@@ -258,7 +261,11 @@ def main():
             fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1 = axes
             plot_number = 0
-        ax1.plot(x, y, 'k--', label='original')
+        if config.clear_plot:
+            ax1.plot(x, y, color=base_color[plot_number % len(base_color)], label=ex_name)
+            ax1.legend()
+        else:
+            ax1.plot(x, y, 'k--', label=ex_name)
         if bool(do_new_fig.get()):
             ax1.set_xlim(ax1.get_xlim()[::-1])
             ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
@@ -320,7 +327,8 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
+        if not config.clear_plot:
+            ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
 
         x_peak = []
         vol_peak = []
@@ -378,7 +386,8 @@ def main():
             cprint('number of slices = ' + str(len(x_pe) - 1), text_color, back_color)
 
         calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)], 'on_white')
-        ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
+        if not config.clear_plot:
+            ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
         if len(amp) > 0:
 
             def func(x1, *params):
