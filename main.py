@@ -13,8 +13,7 @@ from termcolor import cprint
 import csv
 from itertools import zip_longest
 from statistics import mean
-
-import config
+import configparser
 
 base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta',  'cyan'
 gauss_color = 'cyan', 'magenta', 'yellow', 'black', 'green', 'red', 'blue'
@@ -31,9 +30,9 @@ def main():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
         listbox_data.delete(1, END)
         entry_flag1.delete(0, END)
-        entry_flag1.insert(0, config.flag1)
+        entry_flag1.insert(0, config['conf']['flag1'])
         entry_flag2.delete(0, END)
-        entry_flag2.insert(0, config.flag2)
+        entry_flag2.insert(0, config['conf']['flag2'])
         entry_point1.delete(0, END)
         entry_point1.insert(0, 'auto')
         entry_point2.delete(0, END)
@@ -104,7 +103,7 @@ def main():
                 y_der.append((dy2 - dy1) / ((x[i + 1] - x[i - 1]) / 2))
             x_der_smoothed = np.empty(0)
             y_der_smoothed = np.empty(0)
-            step = config.der_smoothing_level
+            step = int(config['conf']['der_smoothing_level'])
             for i in range(0, len(x_der), step):
                 x_der_smoothed = np.append(x_der_smoothed, mean(x_der[i:i + step - 1]))
                 y_der_smoothed = np.append(y_der_smoothed, mean(y_der[i:i + step - 1]))
@@ -133,16 +132,17 @@ def main():
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
+        config.read('config.ini')
         flag1 = str(entry_flag1.get())
         flag2 = str(entry_flag2.get())
         input1 = str(listbox_data.get(1))
         ex_name = input1.split("/")[-1]
-        print(ex_name)
         ex_name = ex_name.split(".")[0]
         input2 = str(listbox_const.get(1))
         if input2 != '':
-            with open('const.txt', 'w') as fi:
-                fi.write(input2)
+            config.set('conf', 'const_path', input2)
+            with open('config.ini', 'w') as configfile:
+                config.write(configfile)
 
         if '.pdf' not in input2:
             input1_pdf = input1.replace('.txt', '.pdf')
@@ -212,7 +212,7 @@ def main():
         y = []
         if bool(do_fix.get()):
             print('lg intensity fixed')
-        if config.lin_calc:
+        if config.getboolean('conf', 'lin_calc'):
             print('lin_calc')
         for i in range(len(data)):
             data[i] = data[i].replace('\n', '')
@@ -220,9 +220,14 @@ def main():
             li = data[i].split('\t')
             vl = float(li[0])
             vol.append(vl)
-            if config.lin_calc:
-                b1 = (config.lgm2 - config.lgm1) / (config.vol2 - config.vol1)
-                b0 = config.lgm1 - b1 * config.vol1
+            if config.getboolean('conf', 'lin_calc'):
+                c_lgm1 = float(config['conf']['lgm2'])
+                c_lgm2 = float(config['conf']['lgm2'])
+                c_vol1 = float(config['conf']['vol1'])
+                c_vol2 = float(config['conf']['vol2'])
+
+                b1 = (c_lgm2 - c_lgm1) / (c_vol2 - c_vol1)
+                b0 = c_lgm1 - b1 * c_vol1
                 lgm = b0 + vl * b1
             else:
                 lgm = const[0] + const[1] * vl + const[2] * vl * vl + const[3] * vl ** 3
@@ -243,7 +248,7 @@ def main():
         for i in range(len(y)):
             y[i] = y[i] / y_max
 
-        if config.lin_approx:
+        if config.getboolean('conf', 'lin_approx'):
             vol_for_lin = []
             lg_for_lin = []
             for i in range(len(x)):
@@ -261,7 +266,7 @@ def main():
             fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1 = axes
             plot_number = 0
-        if config.clear_plot:
+        if config.getboolean('conf', 'clear_plot'):
             ax1.plot(x, y, color=base_color[plot_number % len(base_color)], label=ex_name)
             ax1.legend()
         else:
@@ -327,7 +332,7 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        if not config.clear_plot:
+        if not config.getboolean('conf', 'clear_plot'):
             ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
 
         x_peak = []
@@ -386,7 +391,7 @@ def main():
             cprint('number of slices = ' + str(len(x_pe) - 1), text_color, back_color)
 
         calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)], 'on_white')
-        if not config.clear_plot:
+        if not config.getboolean('conf', 'clear_plot'):
             ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
         if len(amp) > 0:
 
@@ -437,6 +442,8 @@ def main():
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
     root.geometry("400x300")
+    config = configparser.ConfigParser()
+    config.read('config.ini')
 
     for i in range(3):
         root.columnconfigure(index=i, weight=1)
@@ -451,12 +458,9 @@ def main():
 
     listbox_const = tk.Listbox(root, width=10, height=1)
     listbox_const.insert(1, "drag constants pdf data file or folder")
-    try:
-        with open('const.txt') as f:
-            const_line = f.read()
-        listbox_const.insert(2, const_line)
-    except:
-        print("no const.txt file")
+
+    if config['conf']['const_path'] != '':
+        listbox_const.insert(2, config['conf']['const_path'])
 
     listbox_const.drop_target_register(DND_FILES)
     listbox_const.dnd_bind('<<Drop>>', lambda e: listbox_const.insert(tk.END, e.data))
@@ -561,7 +565,7 @@ def main():
     label_flag1.grid(column=1, row=4, sticky="news")
 
     entry_flag1 = Entry(root, width=10)
-    entry_flag1.insert(0, config.flag1)
+    entry_flag1.insert(0, config['conf']['flag1'])
     entry_flag1.grid(column=2, row=4)
 
     label_flag2 = ttk.Label(text="second flag")
@@ -569,7 +573,7 @@ def main():
     label_flag2.grid(column=1, row=5, sticky="news")
 
     entry_flag2 = Entry(root, width=10)
-    entry_flag2.insert(0, config.flag2)
+    entry_flag2.insert(0, config['conf']['flag2'])
     entry_flag2.grid(column=2, row=5)
 
     label_point1 = ttk.Label(text="start lgM(.)")
