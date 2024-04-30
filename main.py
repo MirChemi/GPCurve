@@ -16,8 +16,8 @@ from statistics import mean
 
 import config
 
-base_color = 'blue', 'red', 'green', 'black', 'cyan', 'magenta', 'yellow'
-gauss_color = 'cyan', 'magenta', 'yellow'
+base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta',  'cyan'
+gauss_color = 'cyan', 'magenta', 'yellow', 'black', 'green', 'red', 'blue'
 plot_number = 0
 
 
