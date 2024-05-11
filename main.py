@@ -8,8 +8,6 @@ import numpy as np
 import pdfplumber
 from scipy.optimize import curve_fit
 import clipboard
-from colorama import just_fix_windows_console
-from termcolor import cprint
 import csv
 from itertools import zip_longest
 from statistics import mean
@@ -21,10 +19,6 @@ plot_number = 0
 
 
 def main():
-    try:
-        just_fix_windows_console()
-    except:
-        print("Can't fix windows console for colored text")
 
     def clear_c():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
@@ -146,8 +140,6 @@ def main():
 
         if '.pdf' not in input2:
             input1_pdf = input1.replace('.txt', '.pdf')
-            print(input1_pdf)
-            print(input1)
             with pdfplumber.open(input1_pdf) as pdf:
                 page = pdf.pages[0]
                 dt = page.extract_tables(table_settings={})
@@ -346,16 +338,7 @@ def main():
             m_peak.append(10 ** x[i + index_left_min])
             y_peak.append(y[i + index_left_min] - (k_line * x[i + index_left_min] + b_line))
 
-        def calculate_peak(x_pe, y_pe, text_color, back_color):
-
-            if text_color == 'magenta':
-                text_color = 'light_magenta'
-
-            if text_color == 'cyan':
-                text_color = 'light_cyan'
-
-            if text_color == 'yellow':
-                text_color = 'light_yellow'
+        def calculate_peak(x_pe, y_pe, text_color):
 
             m_avg = []
             slice_start = []
@@ -384,13 +367,13 @@ def main():
             m_w = sum(sa_m) / sum(slice_area)
             mwd = m_w / m_n
 
-            cprint('Mn = ' + str(round(m_n)), text_color, back_color)
-            cprint('Mw = ' + str(round(m_w)), text_color, back_color)
-            cprint('Mw/Mn = ' + str(round(mwd, 3)), text_color, back_color)
-            cprint('peak area = ' + str(round(sum(slice_area), 4)), text_color, back_color)
-            cprint('number of slices = ' + str(len(x_pe) - 1), text_color, back_color)
+            text_console.insert(END, 'Mn = ' + str(round(m_n)) + '\t', text_color)
+            text_console.insert(END, 'Mw = ' + str(round(m_w)) + '\t', text_color)
+            text_console.insert(END, 'Mw/Mn = ' + str(round(mwd, 3)) + '\n', text_color)
+            text_console.insert(END, 'peak area = ' + str(round(sum(slice_area), 4)) + '\n', text_color)
+            text_console.insert(END, 'number of slices = ' + str(len(x_pe) - 1) + '\n', text_color)
 
-        calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)], 'on_white')
+        calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)])
         if not config.getboolean('conf', 'clear_plot'):
             ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
         if len(amp) > 0:
@@ -428,7 +411,7 @@ def main():
             popt, pcov = curve_fit(func, x_peak, y_peak, p0=guess, bounds=[down_bounds, up_bounds], maxfev=100000)
             fit = func(x_peak, *popt)
             ax1.plot(x_peak, fit, color='orange')
-            calculate_peak(x_peak, fit, 'light_red', 'on_black')
+            calculate_peak(x_peak, fit, 'orange')
             gauss_curve = []
             print('center--amplitude--sigma')
             for i in range(len(amp)):
@@ -436,27 +419,27 @@ def main():
                 a = np.array(a)
                 print(a)
                 gauss_curve.append(func(x_peak, *a))
-                calculate_peak(x_peak, gauss_curve[i], gauss_color[i % len(gauss_color)], 'on_black')
+                calculate_peak(x_peak, gauss_curve[i], gauss_color[i % len(gauss_color)])
                 ax1.plot(x_peak, gauss_curve[i], color=gauss_color[i % len(gauss_color)])
         pyplot.show()
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
-    root.geometry("400x300")
+    root.geometry("700x300")
     config = configparser.ConfigParser()
     config.read('config.ini')
 
-    for i in range(3):
+    for i in range(6):
         root.columnconfigure(index=i, weight=1)
     for i in range(10):
         root.rowconfigure(index=i, weight=1)
 
-    listbox_data = tk.Listbox(root, width=10, height=1)
+    listbox_data = tk.Listbox(root, width=1, height=1)
     listbox_data.insert(1, "drag GPC txt data file")
     listbox_data.drop_target_register(DND_FILES)
     listbox_data.dnd_bind('<<Drop>>', lambda e: listbox_data.insert(tk.END, e.data))
     listbox_data.grid(column=0, row=0, columnspan=3, rowspan=2, sticky="news")
 
-    listbox_const = tk.Listbox(root, width=10, height=1)
+    listbox_const = tk.Listbox(root, width=1, height=1)
     listbox_const.insert(1, "drag constants pdf data file or folder")
 
     if config['conf']['const_path'] != '':
@@ -515,7 +498,7 @@ def main():
 
         label_amp = ttk.Label(top, text="amplitude")
         label_amp.configure(anchor="center")
-        label_amp.grid(column=0, row=0, sticky="news")
+        label_amp.grid(column=0, row=0)
 
         entry_amp = Entry(top, width=10)
         entry_amp.insert(0, '1.0')
@@ -523,7 +506,7 @@ def main():
 
         label_cen = ttk.Label(top, text="center")
         label_cen.configure(anchor="center")
-        label_cen.grid(column=0, row=1, sticky="news")
+        label_cen.grid(column=0, row=1)
 
         entry_cen = Entry(top, width=10)
         entry_cen.insert(0, '5.0')
@@ -531,7 +514,7 @@ def main():
 
         label_sigma = ttk.Label(top, text="sigma")
         label_sigma.configure(anchor="center")
-        label_sigma.grid(column=0, row=2, sticky="news")
+        label_sigma.grid(column=0, row=2)
 
         entry_sigma = Entry(top, width=10)
         entry_sigma.insert(0, '0.1')
@@ -562,7 +545,7 @@ def main():
 
     label_flag1 = ttk.Label(text="first flag")
     label_flag1.configure(anchor="center")
-    label_flag1.grid(column=1, row=4, sticky="news")
+    label_flag1.grid(column=1, row=4)
 
     entry_flag1 = Entry(root, width=10)
     entry_flag1.insert(0, config['conf']['flag1'])
@@ -570,7 +553,7 @@ def main():
 
     label_flag2 = ttk.Label(text="second flag")
     label_flag2.configure(anchor="center")
-    label_flag2.grid(column=1, row=5, sticky="news")
+    label_flag2.grid(column=1, row=5)
 
     entry_flag2 = Entry(root, width=10)
     entry_flag2.insert(0, config['conf']['flag2'])
@@ -578,7 +561,7 @@ def main():
 
     label_point1 = ttk.Label(text="start lgM(.)")
     label_point1.configure(anchor="center")
-    label_point1.grid(column=1, row=6, sticky="news")
+    label_point1.grid(column=1, row=6)
 
     entry_point1 = Entry(root, width=10)
     entry_point1.insert(0, 'auto')
@@ -586,7 +569,7 @@ def main():
 
     label_point2 = ttk.Label(text="end lgM(.)")
     label_point2.configure(anchor="center")
-    label_point2.grid(column=1, row=7, sticky="news")
+    label_point2.grid(column=1, row=7)
 
     entry_point2 = Entry(root, width=10)
     entry_point2.insert(0, 'auto')
@@ -594,7 +577,7 @@ def main():
 
     label_baseline1 = ttk.Label(text="start base(.)")
     label_baseline1.configure(anchor="center")
-    label_baseline1.grid(column=1, row=8, sticky="news")
+    label_baseline1.grid(column=1, row=8)
 
     entry_baseline1 = Entry(root, width=10)
     entry_baseline1.insert(0, 'auto')
@@ -602,11 +585,26 @@ def main():
 
     label_baseline2 = ttk.Label(text="end base(.)")
     label_baseline2.configure(anchor="center")
-    label_baseline2.grid(column=1, row=9, sticky="news")
+    label_baseline2.grid(column=1, row=9)
 
     entry_baseline2 = Entry(root, width=10)
     entry_baseline2.insert(0, 'auto')
     entry_baseline2.grid(column=2, row=9)
+
+    label_console = ttk.Label(text="Console:")
+    label_baseline2.configure(anchor="n")
+    label_console.grid(column=3, row=0, sticky="n")
+
+    text_console = tk.Text(root, width=20, height=1)
+    text_console.grid(column=3, row=1, columnspan=3, rowspan=9, sticky="news")
+    text_console.tag_config('blue', foreground="blue")
+    text_console.tag_config('red', foreground="red")
+    text_console.tag_config('green', foreground="green")
+    text_console.tag_config('black', foreground="black")
+    text_console.tag_config('cyan', foreground="cyan", background="black")
+    text_console.tag_config('magenta', foreground="magenta", background="black")
+    text_console.tag_config('yellow', foreground="yellow", background="black")
+    text_console.tag_config('orange', foreground="orange", background="black")
 
     root.mainloop()
 
