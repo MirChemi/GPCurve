@@ -1,17 +1,17 @@
 import tkinter as tk
-from tkinter import *
 from tkinter import ttk
-from tkinterdnd2 import DND_FILES, TkinterDnD
-from matplotlib import pyplot
-from matplotlib.widgets import Button as bt
-import numpy as np
-import pdfplumber
-from scipy.optimize import curve_fit
-import clipboard
 import csv
+import configparser
 from itertools import zip_longest
 from statistics import mean
-import configparser
+
+import clipboard
+import pdfplumber
+import numpy as np
+from matplotlib import pyplot, widgets
+from scipy.optimize import curve_fit
+from tkinterdnd2 import DND_FILES, TkinterDnD
+
 
 base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta',  'cyan'
 gauss_color = 'cyan', 'magenta', 'yellow', 'black', 'green', 'red', 'blue'
@@ -22,18 +22,18 @@ def main():
 
     def clear_c():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
-        listbox_data.delete(1, END)
-        entry_flag1.delete(0, END)
+        listbox_data.delete(1, tk.END)
+        entry_flag1.delete(0, tk.END)
         entry_flag1.insert(0, config['conf']['flag1'])
-        entry_flag2.delete(0, END)
+        entry_flag2.delete(0, tk.END)
         entry_flag2.insert(0, config['conf']['flag2'])
-        entry_point1.delete(0, END)
+        entry_point1.delete(0, tk.END)
         entry_point1.insert(0, 'auto')
-        entry_point2.delete(0, END)
+        entry_point2.delete(0, tk.END)
         entry_point2.insert(0, 'auto')
-        entry_baseline1.delete(0, END)
+        entry_baseline1.delete(0, tk.END)
         entry_baseline1.insert(0, 'auto')
-        entry_baseline2.delete(0, END)
+        entry_baseline2.delete(0, tk.END)
         entry_baseline2.insert(0, 'auto')
         number_gauss = 0
         button_gauss.config(text=f"ADD GAUSS({number_gauss})")
@@ -44,7 +44,7 @@ def main():
 
     def clear():
         clear_c()
-        listbox_const.delete(1, END)
+        listbox_const.delete(1, tk.END)
 
     def start():
         def copy_spectra(event):
@@ -269,19 +269,19 @@ def main():
         if bool(do_new_fig.get()):
             ax1.set_xlim(ax1.get_xlim()[::-1])
             ax_copy = fig.add_axes([0.9, 0.2, 0.1, 0.075])
-            b_copy = bt(ax_copy, 'Copy\nspectra')
+            b_copy = widgets.Button(ax_copy, 'Copy\nspectra')
             b_copy.on_clicked(copy_spectra)
 
             ax_copy_p = fig.add_axes([0.9, 0.3, 0.1, 0.075])
-            b_copy_p = bt(ax_copy_p, 'Copy\npeak')
+            b_copy_p = widgets.Button(ax_copy_p, 'Copy\npeak')
             b_copy_p.on_clicked(copy_peak)
 
             ax_copy_a = fig.add_axes([0.9, 0.4, 0.1, 0.075])
-            b_copy_a = bt(ax_copy_a, 'Save\nto csv')
+            b_copy_a = widgets.Button(ax_copy_a, 'Save\nto csv')
             b_copy_a.on_clicked(all_to_csv)
 
             ax_der = fig.add_axes([0.9, 0.5, 0.1, 0.075])
-            b_der = bt(ax_der, 'Show\n2nd der')
+            b_der = widgets.Button(ax_der, 'Show\n2nd der')
             b_der.on_clicked(show_sec_der)
         x_np = np.array(x)
         y_np = np.array(y)
@@ -370,11 +370,11 @@ def main():
             m_w = sum(sa_m) / sum(slice_area)
             mwd = m_w / m_n
 
-            text_console.insert(END, 'Mn = ' + str(round(m_n)) + '\t', text_color)
-            text_console.insert(END, 'Mw = ' + str(round(m_w)) + '\t', text_color)
-            text_console.insert(END, 'Mw/Mn = ' + str(round(mwd, 3)) + '\n', text_color)
-            text_console.insert(END, 'peak area = ' + str(round(sum(slice_area), 4)) + '\n', text_color)
-            text_console.insert(END, 'number of slices = ' + str(len(x_pe) - 1) + '\n', text_color)
+            text_console.insert(tk.END, 'Mn = ' + str(round(m_n)) + '\t', text_color)
+            text_console.insert(tk.END, 'Mw = ' + str(round(m_w)) + '\t', text_color)
+            text_console.insert(tk.END, 'Mw/Mn = ' + str(round(mwd, 3)) + '\n', text_color)
+            text_console.insert(tk.END, 'peak area = ' + str(round(sum(slice_area), 4)) + '\n', text_color)
+            text_console.insert(tk.END, 'number of slices = ' + str(len(x_pe) - 1) + '\n', text_color)
 
         calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)])
         if not config.getboolean('conf', 'clear_plot'):
@@ -456,13 +456,13 @@ def main():
     listbox_const.dnd_bind('<<Drop>>', lambda e: drop_file(listbox_const, e.data))
     listbox_const.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
 
-    button_start = Button(root, text="START", command=start)
+    button_start = tk.Button(root, text="START", command=start)
     button_start.grid(column=0, row=4, sticky="news")
 
-    button_clear = Button(root, text="CLEAR", command=clear)
+    button_clear = tk.Button(root, text="CLEAR", command=clear)
     button_clear.grid(column=0, row=5, sticky="news")
 
-    button_clear_c = Button(root, text="CLEAR -C", command=clear_c)
+    button_clear_c = tk.Button(root, text="CLEAR -C", command=clear_c)
     button_clear_c.grid(column=0, row=6, sticky="news")
 
     number_gauss = 0
@@ -495,7 +495,7 @@ def main():
             button_gauss.config(text=f"ADD GAUSS({number_gauss})")
 
         # Create a Toplevel window
-        top = Toplevel(root)
+        top = tk.Toplevel(root)
         top.geometry("250x150")
 
         for i in range(3):
@@ -503,102 +503,102 @@ def main():
         for i in range(4):
             top.rowconfigure(index=i, weight=1)
 
-        label_amp = ttk.Label(top, text="amplitude")
+        label_amp = tk.Label(top, text="amplitude")
         label_amp.configure(anchor="center")
         label_amp.grid(column=0, row=0)
 
-        entry_amp = Entry(top, width=10)
+        entry_amp = tk.Entry(top, width=10)
         entry_amp.insert(0, '1.0')
         entry_amp.grid(column=1, row=0)
 
-        label_cen = ttk.Label(top, text="center")
+        label_cen = tk.Label(top, text="center")
         label_cen.configure(anchor="center")
         label_cen.grid(column=0, row=1)
 
-        entry_cen = Entry(top, width=10)
+        entry_cen = tk.Entry(top, width=10)
         entry_cen.insert(0, '5.0')
         entry_cen.grid(column=1, row=1)
 
-        label_sigma = ttk.Label(top, text="sigma")
+        label_sigma = tk.Label(top, text="sigma")
         label_sigma.configure(anchor="center")
         label_sigma.grid(column=0, row=2)
 
-        entry_sigma = Entry(top, width=10)
+        entry_sigma = tk.Entry(top, width=10)
         entry_sigma.insert(0, '0.1')
         entry_sigma.grid(column=1, row=2)
 
-        is_locked = IntVar(value=0)
-        checkbutton_lock = ttk.Checkbutton(top, text="lock", variable=is_locked)
+        is_locked = tk.IntVar(value=0)
+        checkbutton_lock = tk.Checkbutton(top, text="lock", variable=is_locked)
         checkbutton_lock.grid(column=2, row=1, sticky="news")
 
-        button_ok = Button(top, text="Ok", command=lambda: close_gauss(top))
+        button_ok = tk.Button(top, text="Ok", command=lambda: close_gauss(top))
         button_ok.grid(column=0, row=3, sticky="news")
 
-        button_del = Button(top, text="Del gauss", command=lambda: del_gauss(top))
+        button_del = tk.Button(top, text="Del gauss", command=lambda: del_gauss(top))
         button_del.grid(column=1, row=3, sticky="news")
 
         top.mainloop()
 
-    button_gauss = Button(root, text="ADD GAUSS(0)", command=popup_gauss)
+    button_gauss = tk.Button(root, text="ADD GAUSS(0)", command=popup_gauss)
     button_gauss.grid(column=0, row=7, sticky="news")
 
-    do_fix = IntVar(value=0)
+    do_fix = tk.IntVar(value=0)
     checkbutton_fix = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
     checkbutton_fix.grid(column=0, row=8, sticky="news")
 
-    do_new_fig = IntVar(value=1)
+    do_new_fig = tk.IntVar(value=1)
     checkbutton_new = ttk.Checkbutton(text="new figure", variable=do_new_fig)
     checkbutton_new.grid(column=0, row=9, sticky="news")
 
-    label_flag1 = ttk.Label(text="first flag")
+    label_flag1 = tk.Label(text="first flag")
     label_flag1.configure(anchor="center")
     label_flag1.grid(column=1, row=4)
 
-    entry_flag1 = Entry(root, width=10)
+    entry_flag1 = tk.Entry(root, width=10)
     entry_flag1.insert(0, config['conf']['flag1'])
     entry_flag1.grid(column=2, row=4)
 
-    label_flag2 = ttk.Label(text="second flag")
+    label_flag2 = tk.Label(text="second flag")
     label_flag2.configure(anchor="center")
     label_flag2.grid(column=1, row=5)
 
-    entry_flag2 = Entry(root, width=10)
+    entry_flag2 = tk.Entry(root, width=10)
     entry_flag2.insert(0, config['conf']['flag2'])
     entry_flag2.grid(column=2, row=5)
 
-    label_point1 = ttk.Label(text="start lgM(.)")
+    label_point1 = tk.Label(text="start lgM(.)")
     label_point1.configure(anchor="center")
     label_point1.grid(column=1, row=6)
 
-    entry_point1 = Entry(root, width=10)
+    entry_point1 = tk.Entry(root, width=10)
     entry_point1.insert(0, 'auto')
     entry_point1.grid(column=2, row=6)
 
-    label_point2 = ttk.Label(text="end lgM(.)")
+    label_point2 = tk.Label(text="end lgM(.)")
     label_point2.configure(anchor="center")
     label_point2.grid(column=1, row=7)
 
-    entry_point2 = Entry(root, width=10)
+    entry_point2 = tk.Entry(root, width=10)
     entry_point2.insert(0, 'auto')
     entry_point2.grid(column=2, row=7)
 
-    label_baseline1 = ttk.Label(text="start base(.)")
+    label_baseline1 = tk.Label(text="start base(.)")
     label_baseline1.configure(anchor="center")
     label_baseline1.grid(column=1, row=8)
 
-    entry_baseline1 = Entry(root, width=10)
+    entry_baseline1 = tk.Entry(root, width=10)
     entry_baseline1.insert(0, 'auto')
     entry_baseline1.grid(column=2, row=8)
 
-    label_baseline2 = ttk.Label(text="end base(.)")
+    label_baseline2 = tk.Label(text="end base(.)")
     label_baseline2.configure(anchor="center")
     label_baseline2.grid(column=1, row=9)
 
-    entry_baseline2 = Entry(root, width=10)
+    entry_baseline2 = tk.Entry(root, width=10)
     entry_baseline2.insert(0, 'auto')
     entry_baseline2.grid(column=2, row=9)
 
-    label_console = ttk.Label(text="Console:")
+    label_console = tk.Label(text="Console:")
     label_baseline2.configure(anchor="n")
     label_console.grid(column=3, row=0, sticky="n")
 
