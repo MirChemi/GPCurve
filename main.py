@@ -133,10 +133,13 @@ def main():
         ex_name = input1.split("/")[-1]
         ex_name = ex_name.split(".")[0]
         input2 = str(listbox_const.get(1))
+
         if input2 != '':
             config.set('conf', 'const_path', input2)
-            with open('config.ini', 'w') as configfile:
-                config.write(configfile)
+        config.set('conf', 'flag1', flag1)
+        config.set('conf', 'flag2', flag2)
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
 
         if '.pdf' not in input2:
             input1_pdf = input1.replace('.txt', '.pdf')
