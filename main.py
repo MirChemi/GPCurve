@@ -436,10 +436,14 @@ def main():
     for i in range(10):
         root.rowconfigure(index=i, weight=1)
 
+    def drop_file(listbox, data):
+        listbox.insert(1, data)
+        listbox.delete(2)
+
     listbox_data = tk.Listbox(root, width=1, height=1)
     listbox_data.insert(1, "drag GPC txt data file")
     listbox_data.drop_target_register(DND_FILES)
-    listbox_data.dnd_bind('<<Drop>>', lambda e: listbox_data.insert(tk.END, e.data))
+    listbox_data.dnd_bind('<<Drop>>', lambda e: drop_file(listbox_data, e.data))
     listbox_data.grid(column=0, row=0, columnspan=3, rowspan=2, sticky="news")
 
     listbox_const = tk.Listbox(root, width=1, height=1)
@@ -449,7 +453,7 @@ def main():
         listbox_const.insert(2, config['conf']['const_path'])
 
     listbox_const.drop_target_register(DND_FILES)
-    listbox_const.dnd_bind('<<Drop>>', lambda e: listbox_const.insert(tk.END, e.data))
+    listbox_const.dnd_bind('<<Drop>>', lambda e: drop_file(listbox_const, e.data))
     listbox_const.grid(column=0, row=2, columnspan=3, rowspan=2, sticky="news")
 
     button_start = Button(root, text="START", command=start)
