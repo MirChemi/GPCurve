@@ -20,13 +20,8 @@ plot_number = 0
 
 def main():
 
-    def clear_c():
+    def clear():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
-        listbox_data.delete(1, tk.END)
-        entry_flag1.delete(0, tk.END)
-        entry_flag1.insert(0, config['conf']['flag1'])
-        entry_flag2.delete(0, tk.END)
-        entry_flag2.insert(0, config['conf']['flag2'])
         entry_point1.delete(0, tk.END)
         entry_point1.insert(0, 'auto')
         entry_point2.delete(0, tk.END)
@@ -41,10 +36,6 @@ def main():
         cen = []
         lock_cen = []
         sigma = []
-
-    def clear():
-        clear_c()
-        listbox_const.delete(1, tk.END)
 
     def start():
         def copy_spectra(event):
@@ -261,7 +252,7 @@ def main():
             fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             ax1 = axes
             plot_number = 0
-        if config.getboolean('conf', 'clear_plot'):
+        if bool(clear_plot.get()):
             ax1.plot(x, y, color=base_color[plot_number % len(base_color)], label=ex_name)
             ax1.legend()
         else:
@@ -327,7 +318,7 @@ def main():
 
         k_line = -(y_line[1] - y_line[0]) / (x_line[0] - x_line[1])
         b_line = y_line[0] - k_line * x_line[0]
-        if not config.getboolean('conf', 'clear_plot'):
+        if not bool(clear_plot.get()):
             ax1.plot(x_line, y_line, color=base_color[plot_number % len(base_color)], linestyle='dashdot', marker='x')
 
         x_peak = []
@@ -377,7 +368,7 @@ def main():
             text_console.insert(tk.END, 'number of slices = ' + str(len(x_pe) - 1) + '\n', text_color)
 
         calculate_peak(x_peak, y_peak, base_color[plot_number % len(base_color)])
-        if not config.getboolean('conf', 'clear_plot'):
+        if not bool(clear_plot.get()):
             ax1.plot(x_peak, y_peak, color=base_color[plot_number % len(base_color)])
         if len(amp) > 0:
 
@@ -462,11 +453,7 @@ def main():
     button_clear = tk.Button(root, text="CLEAR", command=clear)
     button_clear.grid(column=0, row=5, sticky="news")
 
-    button_clear_c = tk.Button(root, text="CLEAR -C", command=clear_c)
-    button_clear_c.grid(column=0, row=6, sticky="news")
-
     number_gauss = 0
-
     amp = []
     cen = []
     lock_cen = []
@@ -540,15 +527,19 @@ def main():
         top.mainloop()
 
     button_gauss = tk.Button(root, text="ADD GAUSS(0)", command=popup_gauss)
-    button_gauss.grid(column=0, row=7, sticky="news")
+    button_gauss.grid(column=0, row=6, sticky="news")
 
     do_fix = tk.IntVar(value=0)
     checkbutton_fix = ttk.Checkbutton(text="fix lg intensity", variable=do_fix)
-    checkbutton_fix.grid(column=0, row=8, sticky="news")
+    checkbutton_fix.grid(column=0, row=7, sticky="news")
 
     do_new_fig = tk.IntVar(value=1)
     checkbutton_new = ttk.Checkbutton(text="new figure", variable=do_new_fig)
-    checkbutton_new.grid(column=0, row=9, sticky="news")
+    checkbutton_new.grid(column=0, row=8, sticky="news")
+
+    clear_plot = tk.IntVar(value=1)
+    checkbutton_clear = ttk.Checkbutton(text="clear plot", variable=clear_plot)
+    checkbutton_clear.grid(column=0, row=9, sticky="news")
 
     label_flag1 = tk.Label(text="first flag")
     label_flag1.configure(anchor="center")

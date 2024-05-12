@@ -18,10 +18,9 @@ Tips
 5) Uncheck 'new figure' to locate spectra on the same picture
 6) Use 'ADD GAUSS' button to fit gauss curve(s) with spectra
 7) 'fix lg intensity' corrects nonlinear dependency between lgM and vol
-8) -C - don't touch constants file/folder
+8) 'clear plot' only places bulk data on the plot
 9) 'Save to csv' button saves to folder with xxx.pdf and xxx.txt
 10) Press 'Show 2nd der' on graph to view second derivative and manually find peaks by its minimum
-11) Peaks characteristics are shown in console
-
+11) Peaks characteristics are shown in gui console
 
 Have fun).
