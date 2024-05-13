@@ -419,6 +419,7 @@ def main():
 
     root = TkinterDnD.Tk()  # instead of tk.Tk()
     root.geometry("700x300")
+    root.title('GPCurve')
     config = configparser.ConfigParser()
     config.read('config.ini')
 
