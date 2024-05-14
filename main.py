@@ -30,6 +30,7 @@ def main():
         entry_baseline1.insert(0, 'auto')
         entry_baseline2.delete(0, tk.END)
         entry_baseline2.insert(0, 'auto')
+        text_console.delete(1.0, tk.END)
         number_gauss = 0
         button_gauss.config(text=f"ADD GAUSS({number_gauss})")
         amp = []
@@ -117,6 +118,7 @@ def main():
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
+
         config.read('config.ini')
         flag1 = str(entry_flag1.get())
         flag2 = str(entry_flag2.get())
