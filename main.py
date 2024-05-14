@@ -249,8 +249,7 @@ def main():
         index_max = y.index(max(y))
         plot_number += 1
         if bool(do_new_fig.get()):
-            fig, axes = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
-            ax1 = axes
+            fig, ax1 = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
             plot_number = 0
         if bool(clear_plot.get()):
             ax1.plot(x, y, color=base_color[plot_number % len(base_color)], label=ex_name)
@@ -420,6 +419,7 @@ def main():
     root = TkinterDnD.Tk()  # instead of tk.Tk()
     root.geometry("700x300")
     root.title('GPCurve')
+
     config = configparser.ConfigParser()
     config.read('config.ini')
 
