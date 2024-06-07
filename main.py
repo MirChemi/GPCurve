@@ -4,6 +4,7 @@ import csv
 import configparser
 from itertools import zip_longest
 from statistics import mean
+import os
 
 import clipboard
 import pdfplumber
@@ -119,7 +120,7 @@ def main():
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
 
-        config.read('config.ini')
+        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
         flag1 = str(entry_flag1.get())
         flag2 = str(entry_flag2.get())
         input1 = str(listbox_data.get(1))
@@ -131,7 +132,7 @@ def main():
             config.set('conf', 'const_path', input2)
         config.set('conf', 'flag1', flag1)
         config.set('conf', 'flag2', flag2)
-        with open('config.ini', 'w') as configfile:
+        with open(os.path.join(os.path.dirname(__file__), 'config.ini'), 'w') as configfile:
             config.write(configfile)
 
         if '.pdf' not in input2:
@@ -424,7 +425,7 @@ def main():
     root.title('GPCurve')
 
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
 
     for i in range(6):
         root.columnconfigure(index=i, weight=1)
