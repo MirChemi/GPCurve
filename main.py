@@ -253,6 +253,7 @@ def main():
         plot_number += 1
         if bool(do_new_fig.get()):
             fig, ax1 = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
+            ax1.set_xlabel('lgM')
             plot_number = 0
         if bool(clear_plot.get()):
             ax1.plot(x, y, color=base_color[plot_number % len(base_color)], label=ex_name)
