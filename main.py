@@ -13,14 +13,12 @@ from matplotlib import pyplot, widgets
 from scipy.optimize import curve_fit
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
-
-base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta',  'cyan'
+base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta', 'cyan'
 gauss_color = 'cyan', 'magenta', 'yellow', 'black', 'green', 'red', 'blue'
 plot_number = 0
 
 
 def main():
-
     def clear():
         nonlocal number_gauss, amp, cen, lock_cen, sigma
         entry_point1.delete(0, tk.END)
@@ -252,7 +250,8 @@ def main():
         index_max = y.index(max(y))
         plot_number += 1
         if bool(do_new_fig.get()):
-            fig, ax1 = pyplot.subplots(1, 1, figsize=(9.0, 8.0), sharex=True)
+            fig, ax1 = pyplot.subplots(figsize=(9.0, 7.0), sharex=True)
+            ax1.set_position([0.07, 0.1, 0.8, 0.8])
             ax1.set_xlabel('lgM')
             plot_number = 0
         if bool(clear_plot.get()):
