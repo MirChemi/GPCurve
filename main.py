@@ -13,6 +13,8 @@ from matplotlib import pyplot, widgets
 from scipy.optimize import curve_fit
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
+import linreg
+
 base_color = 'blue', 'red', 'green', 'black', 'yellow', 'magenta', 'cyan'
 gauss_color = 'cyan', 'magenta', 'yellow', 'black', 'green', 'red', 'blue'
 plot_number = 0
@@ -96,24 +98,6 @@ def main():
             ax1_d = axes_d
             ax1_d.scatter(x_der_smoothed, y_der_smoothed)
             pyplot.show()
-
-        def estimate_coef(x, y):
-            # number of observations/points
-            n = np.size(x)
-
-            # mean of x and y vector
-            m_x = np.mean(x)
-            m_y = np.mean(y)
-
-            # calculating cross-deviation and deviation about x
-            ss_xy = np.sum(y * x) - n * m_y * m_x
-            ss_xx = np.sum(x * x) - n * m_x * m_x
-
-            # calculating regression coefficients
-            b_1 = ss_xy / ss_xx
-            b_0 = m_y - b_1 * m_x
-
-            return b_0, b_1
 
         nonlocal amp, cen, lock_cen, sigma
         global ax1, plot_number
@@ -235,6 +219,7 @@ def main():
         for i in range(len(y)):
             y[i] = y[i] / y_max
 
+        # to change cubic dependence between vol and lgM to linear one
         if config.getboolean('conf', 'lin_approx'):
             vol_for_lin = []
             lg_for_lin = []
@@ -242,7 +227,7 @@ def main():
                 if y[i] > 0.1:
                     vol_for_lin.append(vol[i])
                     lg_for_lin.append(x[i])
-            b0, b1 = estimate_coef(np.array(vol_for_lin), np.array(lg_for_lin))
+            b0, b1 = linreg.estimate_coef(np.array(vol_for_lin), np.array(lg_for_lin))
             x = []
             for i in range(len(vol)):
                 x.append(b0 + b1 * vol[i])
