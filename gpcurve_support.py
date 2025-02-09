@@ -23,8 +23,8 @@ import numpy as np
 from matplotlib import pyplot, widgets
 from scipy.optimize import curve_fit
 
-import linreg
-import gui
+from scripts import linreg, const_extr
+import gpcurve
 
 _debug = True # False to eliminate debug printing from callback functions.
 
@@ -42,7 +42,7 @@ def main(*args):
     _config = configparser.ConfigParser()
     _config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
     _top1 = root
-    _w1 = gui.Toplevel1(_top1)
+    _w1 = gpcurve.Toplevel1(_top1)
     _w1.lb1.insert(1, "drag GPC txt data file")
     _w1.lb1.drop_target_register(DND_FILES)
     _w1.lb1.dnd_bind('<<Drop>>', lambda e: drop_file(_w1.lb1, e.data))
@@ -140,65 +140,17 @@ def start():
     with open(os.path.join(os.path.dirname(__file__), 'config.ini'), 'w') as configfile:
         _config.write(configfile)
 
-    const = []
     if all([_w1.e_c0.get(), _w1.e_c1.get(), _w1.e_c2.get(), _w1.e_c3.get()]):
-        const.append(float(_w1.e_c0.get()))
-        const.append(float(_w1.e_c1.get()))
-        const.append(float(_w1.e_c2.get()))
-        const.append(float(_w1.e_c3.get()))
+        const = [float(_w1.e_c0.get()), float(_w1.e_c1.get()), float(_w1.e_c2.get()), float(_w1.e_c3.get())]
     else:
-        if '.pdf' not in input2:
-            input1_pdf = input1.replace('.txt', '.pdf')
-            with pdfplumber.open(input1_pdf) as pdf:
-                page = pdf.pages[0]
-                dt = page.extract_tables(table_settings={})
-            dt = dt[0]
-            for i in range(len(dt)):
-                for j in range(len(dt[i])):
-                    test = str(dt[i][j])
-                    if 'Sequence' in test:
-                        prefix = test
-            prefix = prefix.split('\n')
-            for i in range(len(prefix)):
-                if 'Sequence' in str(prefix[i]):
-                    prefix1 = str(prefix[i])
-                    break
-            prefix1 = prefix1.split(': ')
-            for i in range(len(prefix1)):
-                if '(' in str(prefix1[i]):
-                    pr = str(prefix1[i])
-                    if "RI" in pr:
-                        gpc_type = "RI"
-                    else:
-                        gpc_type = "UV"
-                    break
-            prefix = pr[6] + pr[7] + pr[8] + pr[9] + pr[3] + pr[4] + pr[0] + pr[1] + gpc_type
-            name2 = input2 + '/' + prefix + '.pdf'
-        else:
-            name2 = input2
-        print(name2)
-
-        with pdfplumber.open(name2) as pdf:
-            page = pdf.pages[0]
-            ct = page.extract_tables(table_settings={})
-        pre_const = []
-
-        for i in range(len(ct)):
-            for j in range(len(ct[i])):
-                if ct[i][j] == ['C0', 'C1', 'C2', 'C3']:
-                    pre_const = ct[i][j + 1]
-        for i in range(len(pre_const)):
-            pre_const[i] = pre_const[i].replace(' ', '')
-            pre_const[i] = pre_const[i].replace(',', '.')
-            const.append(float(pre_const[i]))
-
+        const = const_extr.extract_const(input2, input1)
     print('C0 - C3 = ' + str(const))
 
     with open(_w1.lb1.get(1), encoding="utf8") as f:
         data = f.readlines()
     while data and not data[0].startswith(flag1):
         data.pop(0)
-    while data and flag2 not in data[-1]:
+    while data and not data[-1].startswith(flag2):
         data.pop(-1)
 
     x = []
@@ -209,8 +161,7 @@ def start():
     if _config.getboolean('conf', 'lin_calc'):
         print('lin_calc')
     for i in range(len(data)):
-        data[i] = data[i].replace('\n', '')
-        data[i] = data[i].replace(',', '.')
+        data[i] = data[i].replace('\n', '').replace(',', '.')
         li = data[i].split('\t')
         vl = float(li[0])
         vol.append(vl)
@@ -435,7 +386,7 @@ def uncheck_gauss(*args):
         sys.stdout.flush()
 
 if __name__ == '__main__':
-    gui.start_up()
+    gpcurve.start_up()
 
 
 
