@@ -2,6 +2,7 @@ import pdfplumber
 
 
 def extract_const(file_or_folder, data_filename=''):
+    """Extracts constants (C0-C3) from pdf or folder with constants"""
     if '.pdf' not in file_or_folder:
         data_filename_pdf = data_filename.replace('.txt', '.pdf')
         with pdfplumber.open(data_filename_pdf) as pdf:
@@ -30,7 +31,6 @@ def extract_const(file_or_folder, data_filename=''):
 
     with pdfplumber.open(const_filename) as pdf:
         const_tbl = pdf.pages[0].extract_tables(table_settings={})
-
 
     for i in range(len(const_tbl)):
         for j in range(len(const_tbl[i])):

@@ -18,3 +18,6 @@ def estimate_coef(x, y):
     b_0 = m_y - b_1 * m_x
 
     return b_0, b_1
+
+def interpolate(x, x_list : list, y_list : list):
+    return y_list[0] + (y_list[1] - y_list[0]) * (x - x_list[0]) / (x_list[1] - x_list[0])
