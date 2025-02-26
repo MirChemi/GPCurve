@@ -33,17 +33,17 @@ class Plot:
         self.ax1.legend()
 
         self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
-        ax_copy = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
-        b_copy = widgets.Button(ax_copy, 'Copy\nspectra')
-        b_copy.on_clicked(self.copy_spectra)
+        self.ax_copy = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
+        self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
+        self.b_copy.on_clicked(self.copy_spectra)
 
-        ax_der = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
-        b_der = widgets.Button(ax_der, 'Show\n2nd der')
-        b_der.on_clicked(self.show_sec_der)
+        self.ax_der = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
+        self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
+        self.b_der.on_clicked(self.show_sec_der)
 
-        ax_copy_p = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
-        b_copy_p = widgets.Button(ax_copy_p, 'Copy\npeak')
-        b_copy_p.on_clicked(self.copy_peak)
+        self.ax_copy_p = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
+        self.b_copy_p = widgets.Button(self.ax_copy_p, 'Copy\npeak')
+        self.b_copy_p.on_clicked(self.copy_peak)
 
     def show(self):
         pyplot.show()
@@ -162,13 +162,13 @@ class Plot_vol:
             self.ax1.plot(vol, vol_y, '--', color=base_color[0], label=ex_name)
         self.ax1.legend()
 
-        ax_copy = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
-        b_copy = widgets.Button(ax_copy, 'Copy\nspectra')
-        b_copy.on_clicked(self.copy_spectra)
+        self.ax_copy = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
+        self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
+        self.b_copy.on_clicked(self.copy_spectra)
 
-        ax_der = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
-        b_der = widgets.Button(ax_der, 'Show\n2nd der')
-        b_der.on_clicked(self.show_sec_der)
+        self.ax_der = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
+        self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
+        self.b_der.on_clicked(self.show_sec_der)
 
     def show(self):
         pyplot.show()
