@@ -5,8 +5,9 @@ from statistics import mean
 from matplotlib import pyplot, widgets
 import numpy as np
 
-from scripts import norm, linreg
+from scripts import norm, linreg, data_math
 from scripts.pcalc import calculate_peak
+from scripts.data_math import normalize_second_by_point
 
 
 base_color = 'blue', 'red', 'green', 'black', 'magenta', 'cyan', 'yellow'
@@ -17,7 +18,7 @@ class Plot:
         self.ax1.set_position([0.07, 0.1, 0.8, 0.8])
         self.ax1.set_xlabel('lgM')
         self.lgm = [lgm]
-        self.lgm_i = [lgm_i]
+        self.lgm_y = [lgm_i]
         self.pk_lgm = [lgm]
         self.pk_lgm_y = [lgm_i]
         self.ex_name = [ex_name]
@@ -32,24 +33,28 @@ class Plot:
         self.ax1.legend()
 
         self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
-        self.ax_copy = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
+        self.ax_copy = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
         self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
         self.b_copy.on_clicked(self.copy_spectra)
 
-        self.ax_der = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
+        self.ax_der = self.fig.add_axes([0.9, 0.7, 0.1, 0.075])
         self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
         self.b_der.on_clicked(self.show_sec_der)
 
-        self.ax_copy_p = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
+        self.ax_copy_p = self.fig.add_axes([0.9, 0.6, 0.1, 0.075])
         self.b_copy_p = widgets.Button(self.ax_copy_p, 'Copy\npeak')
         self.b_copy_p.on_clicked(self.copy_peak)
+
+        self.ax_subtract = self.fig.add_axes([0.9, 0.4, 0.1, 0.075])
+        self.b_subtract = widgets.Button(self.ax_subtract, 'Subtract\nfirst')
+        self.b_subtract.on_clicked(self.subtract_first)
 
     def show(self):
         pyplot.show()
 
     def add(self, lgm, lgm_i, ex_name, clean):
         self.lgm.append(lgm)
-        self.lgm_i.append(lgm_i)
+        self.lgm_y.append(lgm_i)
         self.ex_name.append(ex_name)
         if clean:
             self.ax1.plot(lgm, lgm_i, color=base_color[len(self.lgm) % len(base_color)], label=ex_name)
@@ -68,21 +73,7 @@ class Plot:
         if pk_lgm_p[0] and pk_lgm_p[1]:
             pk_lgm_p.sort()
         if pk_lgm_p[1]:
-            while self.pk_lgm[-1][0] > pk_lgm_p[1]:
-                self.pk_lgm[-1].pop(0)
-                self.pk_lgm_y[-1].pop(0)
-        else:
-            pk_lgm_i_max = self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))
-            pk_lgm_i_left = 0
-            for i in range(pk_lgm_i_max, 0, -1):
-                if self.pk_lgm_y[-1][i - 2] > self.pk_lgm_y[-1][i]:
-                    pk_lgm_i_left = i
-                    break
-            self.pk_lgm[-1] = self.pk_lgm[-1][pk_lgm_i_left:]
-            self.pk_lgm_y[-1] = self.pk_lgm_y[-1][pk_lgm_i_left:]
-
-        if pk_lgm_p[0]:
-            while self.pk_lgm[-1][-1] < pk_lgm_p[0]:
+            while self.pk_lgm[-1][-1] > pk_lgm_p[1]:
                 self.pk_lgm[-1].pop()
                 self.pk_lgm_y[-1].pop()
         else:
@@ -94,6 +85,20 @@ class Plot:
                     break
             self.pk_lgm[-1] = self.pk_lgm[-1][:pk_lgm_i_right]
             self.pk_lgm_y[-1] = self.pk_lgm_y[-1][:pk_lgm_i_right]
+
+        if pk_lgm_p[0]:
+            while self.pk_lgm[-1][0] < pk_lgm_p[0]:
+                self.pk_lgm[-1].pop(0)
+                self.pk_lgm_y[-1].pop(0)
+        else:
+            pk_lgm_i_max = self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))
+            pk_lgm_i_left = 1
+            for i in range(pk_lgm_i_max, 0, -1):
+                if self.pk_lgm_y[-1][i - 2] > self.pk_lgm_y[-1][i]:
+                    pk_lgm_i_left = i
+                    break
+            self.pk_lgm[-1] = self.pk_lgm[-1][pk_lgm_i_left:]
+            self.pk_lgm_y[-1] = self.pk_lgm_y[-1][pk_lgm_i_left:]
 
         if not pk_lgm_p_y[0] and not pk_lgm_p_y[1]:
             pk_lgm_y_min = min(self.pk_lgm_y[-1])
@@ -111,14 +116,14 @@ class Plot:
 
         self.m_n, self.m_w, self.p_area = calculate_peak(self.pk_lgm[-1], self.pk_lgm_y[-1])
         self.pk_max = self.pk_lgm[-1][self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))]
-        self.ax1.plot(self.pk_lgm[-1], self.pk_lgm_y[-1], color=base_color[len(self.lgm) % len(base_color)])
+        self.ax1.plot(self.pk_lgm[-1], self.pk_lgm_y[-1], color='red')
         self.ax1.legend()
         self.update_last_legend_entry(f'Mn={round(self.m_n)} Mw/Mn={round(self.m_w/self.m_n, 2)}')
 
     def copy_spectra(self, event):
         to_copy = ''
         for i in range(len(self.lgm[-1])):
-            to_copy += f'{self.lgm[-1][i]}\t{self.lgm_i[-1][i]}\n'
+            to_copy += f'{self.lgm[-1][i]}\t{self.lgm_y[-1][i]}\n'
         clipboard.copy(to_copy)
 
     def copy_peak(self, event):
@@ -134,8 +139,8 @@ class Plot:
         y_der = []
         for i in range(1, len(self.lgm[-1]) - 1):
             x_der.append(self.lgm[-1][i])
-            dy1 = (self.lgm_i[-1][i] - self.lgm_i[-1][i - 1]) / (self.lgm[-1][i] - self.lgm[-1][i - 1])
-            dy2 = (self.lgm_i[-1][i + 1] - self.lgm_i[-1][i]) / (self.lgm[-1][i + 1] - self.lgm[-1][i])
+            dy1 = (self.lgm_y[-1][i] - self.lgm_y[-1][i - 1]) / (self.lgm[-1][i] - self.lgm[-1][i - 1])
+            dy2 = (self.lgm_y[-1][i + 1] - self.lgm_y[-1][i]) / (self.lgm[-1][i + 1] - self.lgm[-1][i])
             y_der.append((dy2 - dy1) / ((self.lgm[-1][i + 1] - self.lgm[-1][i - 1]) / 2))
         x_der_smoothed = np.empty(0)
         y_der_smoothed = np.empty(0)
@@ -147,6 +152,20 @@ class Plot:
         ax1_d = axes_d
         ax1_d.scatter(x_der_smoothed, y_der_smoothed)
         pyplot.show()
+
+    def subtract_first(self, event):
+        config = configparser.ConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+        lgm0_y_norm = normalize_second_by_point(self.lgm[-1], self.lgm_y[-1], self.lgm[0], self.lgm_y[0],
+                                                config.getfloat('subtract','lgm_norm'))
+        self.ax1.plot(self.lgm[0], lgm0_y_norm, color='yellow')
+
+        lgm_y = data_math.subtract(self.lgm[-1], self.lgm_y[-1], self.lgm[0], lgm0_y_norm)
+        lgm_y = norm.norm_0_1(lgm_y)
+        self.subtracted = Plot(self.lgm[-1], lgm_y, self.ex_name[-1], False)
+        self.subtracted.peak([None, None], [None, None])
+        self.subtracted.show()
+
 
 
 

@@ -6,7 +6,7 @@ from tkinter import ttk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 import gpcurve
-from scripts import linreg, norm, const_extr, data_extr, pcalc
+from scripts import linreg, norm, const_extr, data_extr, data_math, pcalc
 from scripts.tools import safe_float
 from plot import Plot, Plot_vol
 
@@ -94,7 +94,15 @@ def start():
                 lgm_y.append(vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]))
             elif i > 1:
                 lgm_y.append(2 * vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]) - lgm_y[i - 1])
-        lgm_y = norm.normalize(lgm_y)
+        if _config.getboolean('conf', 'zero_norm'):
+            lgm_y = norm.norm_0_1(lgm_y)
+            print("Norm_0_1")
+        else:
+            lgm_y = norm.norm_1(lgm_y)
+            print("Norm_1")
+
+        lgm, lgm_y = data_math.sort_data(lgm, lgm_y)
+
         if bool(_w1.new_fig.get()):
             _pl.append(Plot(lgm, lgm_y, ex_name, _w1.clean.get()))
         else:

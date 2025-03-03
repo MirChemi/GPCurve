@@ -16,8 +16,6 @@ def extract_data(data_filename, flag1, flag2):
         vol.append(float(data_line[0]))
         vol_y.append(float(data_line[2]))
 
-    vol_y = norm.normalize(vol_y)
-
     for i in range(1,len(vol)):
         vol_wt.append((vol[i] - vol[i-1]) * (vol_y[i] + vol_y[i-1]) / 2)
 
