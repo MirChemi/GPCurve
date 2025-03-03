@@ -23,7 +23,6 @@ class Plot:
         self.ex_name = [ex_name]
         self.m_n = 0
         self.m_w = 0
-        self.mwd = 0
         self.p_area = 0
         self.pk_max = 0
         if clean:
@@ -57,6 +56,13 @@ class Plot:
         else:
             self.ax1.plot(lgm, lgm_i, 'k--', color=base_color[len(self.lgm) % len(base_color)], label=ex_name)
         self.ax1.legend()
+
+    def update_last_legend_entry(self, extra_text):
+        handles, labels = self.ax1.get_legend_handles_labels()
+
+        if labels:
+            labels[-1] += f" {extra_text}"
+        self.ax1.legend(handles, labels)
 
     def peak(self, pk_lgm_p: list, pk_lgm_p_y: list):
         if pk_lgm_p[0] and pk_lgm_p[1]:
@@ -107,6 +113,7 @@ class Plot:
         self.pk_max = self.pk_lgm[-1][self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))]
         self.ax1.plot(self.pk_lgm[-1], self.pk_lgm_y[-1], color=base_color[len(self.lgm) % len(base_color)])
         self.ax1.legend()
+        self.update_last_legend_entry(f'Mn={round(self.m_n)} Mw/Mn={round(self.m_w/self.m_n, 2)}')
 
     def copy_spectra(self, event):
         to_copy = ''
@@ -140,6 +147,8 @@ class Plot:
         ax1_d = axes_d
         ax1_d.scatter(x_der_smoothed, y_der_smoothed)
         pyplot.show()
+
+
 
 class Plot_vol:
     def __init__(self, vol, vol_y, ex_name, clean):
