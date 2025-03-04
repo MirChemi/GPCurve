@@ -1,6 +1,8 @@
 import clipboard
 import os
 import configparser
+import csv
+from itertools import zip_longest
 from statistics import mean
 from matplotlib import pyplot, widgets
 import numpy as np
@@ -19,9 +21,10 @@ class Plot:
         self.ax1.set_xlabel('lgM')
         self.lgm = [lgm]
         self.lgm_y = [lgm_i]
-        self.pk_lgm = [lgm]
-        self.pk_lgm_y = [lgm_i]
         self.ex_name = [ex_name]
+        self.pk_lgm = []
+        self.pk_lgm_y = []
+        self.pk_ex_name = []
         self.m_n = 0
         self.m_w = 0
         self.p_area = 0
@@ -33,9 +36,6 @@ class Plot:
         self.ax1.legend()
 
         self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
-        self.ax_copy = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
-        self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
-        self.b_copy.on_clicked(self.copy_spectra)
 
         self.ax_der = self.fig.add_axes([0.9, 0.7, 0.1, 0.075])
         self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
@@ -45,7 +45,15 @@ class Plot:
         self.b_copy_p = widgets.Button(self.ax_copy_p, 'Copy\npeak')
         self.b_copy_p.on_clicked(self.copy_peak)
 
-        self.ax_subtract = self.fig.add_axes([0.9, 0.4, 0.1, 0.075])
+        self.ax_copy = self.fig.add_axes([0.9, 0.5, 0.1, 0.075])
+        self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
+        self.b_copy.on_clicked(self.copy_spectra)
+
+        self.ax_csv = self.fig.add_axes([0.9, 0.4, 0.1, 0.075])
+        self.b_csv = widgets.Button(self.ax_csv, 'All to\ncsv')
+        self.b_csv.on_clicked(self.all_to_csv)
+
+        self.ax_subtract = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
         self.b_subtract = widgets.Button(self.ax_subtract, 'Subtract\nfirst')
         self.b_subtract.on_clicked(self.subtract_first)
 
@@ -70,6 +78,11 @@ class Plot:
         self.ax1.legend(handles, labels)
 
     def peak(self, pk_lgm_p: list, pk_lgm_p_y: list):
+
+        self.pk_lgm.append(self.lgm[-1])
+        self.pk_lgm_y.append(self.lgm_y[-1])
+        self.pk_ex_name.append(self.ex_name[-1])
+
         if pk_lgm_p[0] and pk_lgm_p[1]:
             pk_lgm_p.sort()
         if pk_lgm_p[1]:
@@ -131,6 +144,26 @@ class Plot:
         for i in range(len(self.pk_lgm[-1])):
             to_copy += f'{self.pk_lgm[-1][i]}\t{self.pk_lgm_y[-1][i]}\n'
         clipboard.copy(to_copy)
+
+    def all_to_csv(self, event):
+        ex_names = "_".join(self.ex_name)
+        csv_filename = os.path.join(os.path.dirname(__file__), 'output', f'{ex_names}.csv')
+        with open(csv_filename, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            header = []
+            data = []
+            for i in range(len(self.ex_name)):
+                header.append(f'{self.ex_name[i]}_lgm')
+                header.append(f'{self.ex_name[i]}_intensity')
+                data.append(self.lgm[i])
+                data.append(self.lgm_y[i])
+            for i in range(len(self.pk_ex_name)):
+                header.append(f'{self.pk_ex_name[i]}_peak_lgm')
+                header.append(f'{self.pk_ex_name[i]}_peak_intensity')
+                data.append(self.pk_lgm[i])
+                data.append(self.pk_lgm_y[i])
+            writer.writerow(header)
+            writer.writerows(zip_longest(data, fillvalue="0"))
 
     def show_sec_der(self, event):
         config = configparser.ConfigParser()
