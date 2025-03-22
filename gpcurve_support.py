@@ -94,10 +94,10 @@ def start():
                 lgm_y.append(vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]))
             elif i > 1:
                 lgm_y.append(2 * vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]) - lgm_y[i - 1])
-        if _config.getboolean('conf', 'zero_norm'):
+        if _config.get('conf', 'norm_mode') == '01':
             lgm_y = norm.norm_0_1(lgm_y)
             print("Norm_0_1")
-        else:
+        elif _config.get('conf', 'norm_mode') == '1':
             lgm_y = norm.norm_1(lgm_y)
             print("Norm_1")
 

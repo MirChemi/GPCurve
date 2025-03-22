@@ -1,6 +1,3 @@
-from scripts import norm
-
-
 def extract_data(data_filename, flag1, flag2):
     with open(data_filename, encoding="utf8") as f:
         data = f.readlines()

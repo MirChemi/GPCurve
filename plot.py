@@ -53,7 +53,11 @@ class Plot:
         self.b_csv = widgets.Button(self.ax_csv, 'All to\ncsv')
         self.b_csv.on_clicked(self.all_to_csv)
 
-        self.ax_subtract = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
+        self.ax_save_fig = self.fig.add_axes([0.9, 0.3, 0.1, 0.075])
+        self.b_save_fig = widgets.Button(self.ax_save_fig, 'Save\nfigure')
+        self.b_save_fig.on_clicked(self.save_fig)
+
+        self.ax_subtract = self.fig.add_axes([0.9, 0.2, 0.1, 0.075])
         self.b_subtract = widgets.Button(self.ax_subtract, 'Subtract\nfirst')
         self.b_subtract.on_clicked(self.subtract_first)
 
@@ -78,6 +82,8 @@ class Plot:
         self.ax1.legend(handles, labels)
 
     def peak(self, pk_lgm_p: list, pk_lgm_p_y: list):
+        config = configparser.ConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
 
         self.pk_lgm.append(self.lgm[-1])
         self.pk_lgm_y.append(self.lgm_y[-1])
@@ -93,7 +99,7 @@ class Plot:
             pk_lgm_i_max = self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))
             pk_lgm_i_right = len(self.pk_lgm_y[-1]) - 2
             for i in range(pk_lgm_i_max, len(self.pk_lgm_y[-1]) - 2):
-                if self.pk_lgm_y[-1][i + 2] > self.pk_lgm_y[-1][i]:
+                if self.pk_lgm_y[-1][i + 2] > self.pk_lgm_y[-1][i] and self.pk_lgm_y[-1][i] < config.getfloat('peak', 'baseline_y_trashhold'):
                     pk_lgm_i_right = i
                     break
             self.pk_lgm[-1] = self.pk_lgm[-1][:pk_lgm_i_right]
@@ -107,7 +113,7 @@ class Plot:
             pk_lgm_i_max = self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))
             pk_lgm_i_left = 1
             for i in range(pk_lgm_i_max, 0, -1):
-                if self.pk_lgm_y[-1][i - 2] > self.pk_lgm_y[-1][i]:
+                if self.pk_lgm_y[-1][i - 2] > self.pk_lgm_y[-1][i] and self.pk_lgm_y[-1][i] < config.getfloat('peak', 'baseline_y_trashhold'):
                     pk_lgm_i_left = i
                     break
             self.pk_lgm[-1] = self.pk_lgm[-1][pk_lgm_i_left:]
@@ -163,7 +169,14 @@ class Plot:
                 data.append(self.pk_lgm[i])
                 data.append(self.pk_lgm_y[i])
             writer.writerow(header)
-            writer.writerows(zip_longest(data, fillvalue="0"))
+            writer.writerows(zip_longest(*data, fillvalue="0"))
+
+    def save_fig(self, event):
+        ex_names = "_".join(self.ex_name)
+        fig_filename = os.path.join(os.path.dirname(__file__), 'output', f'{ex_names}.png')
+
+        extent = self.ax1.get_tightbbox(self.fig.canvas.get_renderer()).transformed(self.fig.dpi_scale_trans.inverted())
+        self.fig.savefig(fig_filename, bbox_inches=extent, dpi=300)
 
     def show_sec_der(self, event):
         config = configparser.ConfigParser()

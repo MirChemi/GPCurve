@@ -1,0 +1,6 @@
+clipboard
+numpy
+pdfplumber
+matplotlib
+scipy
+tkinterdnd2
