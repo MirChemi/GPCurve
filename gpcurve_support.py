@@ -7,7 +7,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 
 import gpcurve
 from scripts import linreg, norm, const_extr, data_extr, data_math, pcalc
-from scripts.tools import safe_float
+from scripts.tools import safe_float, vol_to_lgm
 from plot import Plot, Plot_vol
 
 _debug = True
@@ -88,7 +88,7 @@ def start():
                 c_vol2 = float(_config['conf']['lin_vol2'])
                 lgm.append(linreg.interpolate(vol[i], [c_vol1, c_vol2], [c_lgm1, c_lgm2]))
             else:
-                lgm.append(const[0] + const[1] * vol[i] + const[2] * vol[i] ** 2 + const[3] * vol[i] ** 3)
+                lgm.append(vol_to_lgm(vol[i], const))
             if i == 1:
                 lgm_y.append(vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]))
                 lgm_y.append(vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]))
@@ -111,6 +111,9 @@ def start():
         if not _w1.clean.get():
             pk_lgm_p = [safe_float(_w1.e_sl.get()), safe_float(_w1.e_el.get())]
             pk_lgm_p_y = [safe_float(_w1.e_sb.get()), safe_float(_w1.e_eb.get())]
+            if _w1.calc_type.get() == 1:
+                pk_lgm_p[:2] = [vol_to_lgm(v, const) if v else v for v in pk_lgm_p[:2]]
+                print('Recalculating peak position to lgm')
             _pl[-1].peak(pk_lgm_p, pk_lgm_p_y)
             _w1.Text1.insert(tk.END, f'peak position = {_pl[-1].pk_max}\t')
             _w1.Text1.insert(tk.END, f'Mn = {round(_pl[-1].m_n)}\t')
