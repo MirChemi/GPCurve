@@ -103,7 +103,7 @@ def start():
 
         lgm, lgm_y = data_math.sort_data(lgm, lgm_y)
 
-        if bool(_w1.new_fig.get()):
+        if not bool(_w1.reuse_fig.get()):
             _pl.append(Plot(lgm, lgm_y, ex_name, _w1.clean.get()))
         else:
             _pl[-1].add(lgm, lgm_y, ex_name, _w1.clean.get())
@@ -118,7 +118,7 @@ def start():
             _w1.Text1.insert(tk.END, f'Mw/Mn = {round(_pl[-1].m_w / _pl[-1].m_n, 4)}\n')
             _w1.Text1.insert(tk.END, f'peak area = {_pl[-1].p_area}\n')
     else:
-        if bool(_w1.new_fig.get()):
+        if bool(_w1.reuse_fig.get()):
             _pl.append(Plot_vol(vol, vol_y, ex_name, _w1.clean.get()))
         else:
             _pl[-1].add(vol, vol_y, ex_name, _w1.clean.get())
