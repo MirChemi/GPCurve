@@ -24,7 +24,7 @@ This program is designed to display and calculate peaks based on files generated
 
 ## Usage
 
-1. Place the required files (`xxx.pdf` and `xxx.txt`) in the same folder (see example).
+1. Ensure the required files (`xxx.pdf` and `xxx.txt`) are in the same folder (see example).
 2. Ensure that you have a PDF file containing constants or a folder with such files named in the format `yearmonthdate[RI-or-UV]` (see `constants_example`).
 
 ## Screenshots
