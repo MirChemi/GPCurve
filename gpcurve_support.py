@@ -115,11 +115,11 @@ def start():
                 pk_lgm_p[:2] = [vol_to_lgm(v, const) if v else v for v in pk_lgm_p[:2]]
                 print('Recalculating peak position to lgm')
             _pl[-1].peak(pk_lgm_p, pk_lgm_p_y)
-            _w1.Text1.insert(tk.END, f'peak position = {_pl[-1].pk_max}\t')
+            _w1.Text1.insert(tk.END, f'peak position = {round(_pl[-1].pk_max, 4)}\t')
             _w1.Text1.insert(tk.END, f'Mn = {round(_pl[-1].m_n)}\t')
             _w1.Text1.insert(tk.END, f'Mw = {round(_pl[-1].m_w)}\t')
             _w1.Text1.insert(tk.END, f'Mw/Mn = {round(_pl[-1].m_w / _pl[-1].m_n, 4)}\n')
-            _w1.Text1.insert(tk.END, f'peak area = {_pl[-1].p_area}\n')
+            _w1.Text1.insert(tk.END, f'peak area = {round(_pl[-1].p_area, 4)}\n')
     else:
         if bool(_w1.reuse_fig.get()):
             _pl.append(Plot_vol(vol, vol_y, ex_name, _w1.clean.get()))
