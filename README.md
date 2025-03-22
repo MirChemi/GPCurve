@@ -29,6 +29,8 @@ This program is designed to display and calculate peaks based on files generated
 
 ## Screenshots
 
+![main](screenshots/example0.png)
+
 ![peak_calculation](screenshots/example1.png)
 
 ![multi_peak](screenshots/example2.png)
