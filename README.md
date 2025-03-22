@@ -33,5 +33,7 @@ This program is designed to display and calculate peaks based on files generated
 
 ![multi_peak](screenshots/example2.png)
 
+![gauss](screenshots/example3.png)
+
 Enjoy! 😊
 

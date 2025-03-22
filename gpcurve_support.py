@@ -3,11 +3,13 @@ import os
 import configparser
 import tkinter as tk
 from tkinter import ttk
+
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 import gpcurve
 from scripts import linreg, norm, const_extr, data_extr, data_math, pcalc
-from scripts.tools import safe_float, vol_to_lgm
+from scripts.tools import safe_float
+from scripts.func import vol_to_lgm
 from plot import Plot, Plot_vol
 
 _debug = True
@@ -33,11 +35,11 @@ def main(*args):
     _w1.lb2.insert(1, "drag constants pdf data file or folder")
     _w1.lb2.drop_target_register(DND_FILES)
     _w1.lb2.dnd_bind('<<Drop>>', lambda e: drop_file(_w1.lb2, e.data))
-    if _config['conf']['const_path'] != '':
-        _w1.lb2.insert(2, _config['conf']['const_path'])
+    if _config['save']['const_path'] != '':
+        _w1.lb2.insert(2, _config['save']['const_path'])
 
-    _w1.e_ff.insert(0, _config['conf']['flag1'])
-    _w1.e_sf.insert(0, _config['conf']['flag2'])
+    _w1.e_ff.insert(0, _config['save']['flag1'])
+    _w1.e_sf.insert(0, _config['save']['flag2'])
 
     _use = [_w1.use1, _w1.use2, _w1.use3, _w1.use4, _w1.use5, _w1.use6]
     _amp = [_w1.a1, _w1.a2, _w1.a3, _w1.a4, _w1.a5, _w1.a6]
@@ -64,9 +66,9 @@ def start():
     ex_name = input1.split("/")[-1].split(".")[0]
 
     if input2 != '':
-        _config.set('conf', 'const_path', input2)
-    _config.set('conf', 'flag1', flag1)
-    _config.set('conf', 'flag2', flag2)
+        _config.set('save', 'const_path', input2)
+    _config.set('save', 'flag1', flag1)
+    _config.set('save', 'flag2', flag2)
     with open(os.path.join(os.path.dirname(__file__), 'config.ini'), 'w') as configfile:
         _config.write(configfile)
 
@@ -120,6 +122,32 @@ def start():
             _w1.Text1.insert(tk.END, f'Mw = {round(_pl[-1].m_w)}\t')
             _w1.Text1.insert(tk.END, f'Mw/Mn = {round(_pl[-1].m_w / _pl[-1].m_n, 4)}\n')
             _w1.Text1.insert(tk.END, f'peak area = {round(_pl[-1].p_area, 4)}\n')
+
+        eps = 0.000001
+        gauss_guess = []
+        gauss_lower_bounds = []
+        gauss_upper_bounds = []
+        for i in range(len(_use)):
+            if bool(_use[i].get()):
+                gauss_guess.append(safe_float(_amp[i].get(), _config.getfloat('gauss', 'basic_amp')))
+                gauss_lower_bounds.append(_config.getfloat('gauss', 'amp_lower_bound'))
+                gauss_upper_bounds.append(_config.getfloat('gauss', 'amp_upper_bound'))
+
+                gauss_guess.append(safe_float(_cen[i].get(), _config.getfloat('gauss', 'basic_cen')))
+                if bool(_lock_cen[i].get()):
+                    gauss_lower_bounds.append(gauss_guess[-1] - eps)
+                    gauss_upper_bounds.append(gauss_guess[-1] + eps)
+                else:
+                    gauss_lower_bounds.append(_config.getfloat('gauss', 'cen_lower_bound'))
+                    gauss_upper_bounds.append(_config.getfloat('gauss', 'cen_upper_bound'))
+
+                gauss_guess.append(safe_float(_sigma[i].get(), _config.getfloat('gauss', 'basic_sigma')))
+                gauss_lower_bounds.append(_config.getfloat('gauss', 'sigma_lower_bound'))
+                gauss_upper_bounds.append(_config.getfloat('gauss', 'sigma_upper_bound'))
+        gauss_bounds = (gauss_lower_bounds, gauss_upper_bounds)
+        if gauss_guess:
+            _pl[-1].gauss(gauss_guess, gauss_bounds)
+
     else:
         if bool(_w1.reuse_fig.get()):
             _pl.append(Plot_vol(vol, vol_y, ex_name, _w1.clean.get()))

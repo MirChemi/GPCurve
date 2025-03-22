@@ -4,12 +4,15 @@ import configparser
 import csv
 from itertools import zip_longest
 from statistics import mean
+
+from scipy.optimize import curve_fit
 from matplotlib import pyplot, widgets
 import numpy as np
 
 from scripts import norm, linreg, data_math
 from scripts.pcalc import calculate_peak
 from scripts.data_math import normalize_second_by_point
+from scripts.func import gauss, multi_gauss
 
 
 base_color = 'blue', 'red', 'green', 'black', 'magenta', 'cyan', 'yellow'
@@ -19,20 +22,25 @@ class Plot:
         self.fig, self.ax1 = pyplot.subplots(figsize=(9.0, 7.0), sharex=True)
         self.ax1.set_position([0.07, 0.1, 0.8, 0.8])
         self.ax1.set_xlabel('lgM')
+        self.exp_lines = []
         self.lgm = [lgm]
         self.lgm_y = [lgm_i]
         self.ex_name = [ex_name]
         self.pk_lgm = []
         self.pk_lgm_y = []
+        self.gauss_cum_lgm = []
+        self.gauss_cum_lgm_y = []
+        self.gauss_lgm = []
+        self.gauss_lgm_y = []
         self.pk_ex_name = []
         self.m_n = 0
         self.m_w = 0
         self.p_area = 0
         self.pk_max = 0
         if clean:
-            self.ax1.plot(lgm, lgm_i, color=base_color[0], label=ex_name)
+            self.exp_lines.append(self.ax1.plot(lgm, lgm_i, color=base_color[0], label=ex_name)[0])
         else:
-            self.ax1.plot(lgm, lgm_i, '--', color=base_color[0], label=ex_name)
+            self.exp_lines.append(self.ax1.plot(lgm, lgm_i, '--', color=base_color[0], label=ex_name)[0])
         self.ax1.legend()
 
         self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
@@ -65,21 +73,17 @@ class Plot:
         pyplot.show()
 
     def add(self, lgm, lgm_i, ex_name, clean):
+        self.exp_lines.append(None)
         self.lgm.append(lgm)
         self.lgm_y.append(lgm_i)
         self.ex_name.append(ex_name)
         if clean:
-            self.ax1.plot(lgm, lgm_i, color=base_color[len(self.lgm) % len(base_color)], label=ex_name)
+            self.exp_lines[-1], = self.ax1.plot(lgm, lgm_i,
+                                                color=base_color[(len(self.lgm) - 1) % len(base_color)], label=ex_name)
         else:
-            self.ax1.plot(lgm, lgm_i, 'k--', color=base_color[len(self.lgm) % len(base_color)], label=ex_name)
+            self.exp_lines[-1], = self.ax1.plot(lgm, lgm_i, 'k--',
+                                                color=base_color[(len(self.lgm) - 1) % len(base_color)], label=ex_name)
         self.ax1.legend()
-
-    def update_last_legend_entry(self, extra_text):
-        handles, labels = self.ax1.get_legend_handles_labels()
-
-        if labels:
-            labels[-1] += f" {extra_text}"
-        self.ax1.legend(handles, labels)
 
     def peak(self, pk_lgm_p: list, pk_lgm_p_y: list):
         config = configparser.ConfigParser()
@@ -135,9 +139,33 @@ class Plot:
 
         self.m_n, self.m_w, self.p_area = calculate_peak(self.pk_lgm[-1], self.pk_lgm_y[-1])
         self.pk_max = self.pk_lgm[-1][self.pk_lgm_y[-1].index(max(self.pk_lgm_y[-1]))]
-        self.ax1.plot(self.pk_lgm[-1], self.pk_lgm_y[-1], color='red')
+        self.ax1.plot(self.pk_lgm[-1], self.pk_lgm_y[-1], color=base_color[(len(self.ex_name) - 1) % len(base_color)])
+        self.exp_lines[-1].set_label(f'{self.ex_name[-1]} Mn={round(self.m_n)} Mw/Mn={round(self.m_w / self.m_n, 2)}\narea={round(self.p_area, 3)}')
         self.ax1.legend()
-        self.update_last_legend_entry(f'Mn={round(self.m_n)} Mw/Mn={round(self.m_w/self.m_n, 2)}')
+
+    def gauss(self, guess, guess_bounds):
+        # Perform Gaussian fitting
+        popt, _ = curve_fit(multi_gauss, self.pk_lgm[-1], self.pk_lgm_y[-1], p0=guess, bounds=guess_bounds)
+
+        # Extract parameters
+        fitted_params = np.array(popt).reshape(-1, 3)  # [amp, cen, sigma] for each gaussian
+
+        self.gauss_cum_lgm = self.pk_lgm[-1]
+        self.gauss_cum_lgm_y = multi_gauss(self.pk_lgm[-1], *popt)
+        m_n, m_w, area = calculate_peak(self.gauss_cum_lgm, self.gauss_cum_lgm_y)
+        self.ax1.plot(self.gauss_cum_lgm, self.gauss_cum_lgm_y, color=base_color[-1],
+                      label=f'gauss Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\narea={round(area, 3)}')
+
+        self.gauss_lgm = []
+        self.gauss_lgm_y = []
+        for i in range(len(fitted_params)):
+            self.gauss_lgm.append(self.pk_lgm[-1])
+            self.gauss_lgm_y.append(gauss(self.pk_lgm[-1], *fitted_params[i]))
+            m_n, m_w, area = calculate_peak(self.gauss_lgm[-1], self.gauss_lgm_y[-1])
+            self.ax1.plot(self.gauss_lgm[-1], self.gauss_lgm_y[-1], color=base_color[-2 - i],
+                          label=f'gauss{i} Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\narea={round(area, 3)}')
+
+        self.ax1.legend()
 
     def copy_spectra(self, event):
         to_copy = ''
@@ -168,6 +196,16 @@ class Plot:
                 header.append(f'{self.pk_ex_name[i]}_peak_intensity')
                 data.append(self.pk_lgm[i])
                 data.append(self.pk_lgm_y[i])
+            if self.gauss_cum_lgm:
+                header.append(f'{self.pk_ex_name[-1]}_gauss_cum_lgm')
+                header.append(f'{self.pk_ex_name[-1]}gauss_cum_intensity')
+                data.append(self.gauss_cum_lgm)
+                data.append(self.gauss_cum_lgm_y)
+            for i in range(len(self.gauss_lgm)):
+                header.append(f'{self.pk_ex_name[-1]}_gauss{i}_lgm')
+                header.append(f'{self.pk_ex_name[-1]}_gauss{i}_intensity')
+                data.append(self.gauss_lgm[i])
+                data.append(self.gauss_lgm_y[i])
             writer.writerow(header)
             writer.writerows(zip_longest(*data, fillvalue="0"))
 
