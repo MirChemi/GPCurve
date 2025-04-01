@@ -1,9 +1,11 @@
 import numpy as np
 
 def vol_to_lgm(vol, const):
+    """Converts volume to lgm"""
     return const[0] + const[1] * vol + const[2] * vol ** 2 + const[3] * vol ** 3
 
 def gauss(x, amp, cen, sigma):
+    """Gaussian function"""
     return amp * np.exp(-((x - cen) ** 2) / (2 * sigma ** 2))
 
 def multi_gauss(x, *params):

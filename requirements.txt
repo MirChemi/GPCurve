@@ -1,6 +1,6 @@
 clipboard
 numpy
+scipy
 pdfplumber
 matplotlib
-scipy
-tkinterdnd2
+pyside6

@@ -1,12 +1,12 @@
 import numpy as np
 
 def sort_data(x, y):
-    # Combine x and y into pairs, sort by x, and unzip the result
+    """Combine x and y into pairs, sort by x, and unzip the result"""
     sorted_x, sorted_y = zip(*sorted(zip(x, y)))
     return list(sorted_x), list(sorted_y)
 
 def normalize_second_by_point(x1, y1, x2, y2, x_target):
-    # Ensure the data is sorted by x-values before interpolation
+    """Normalize the second dataset by the intensity at a target point in the first dataset."""
     sorted_x1, sorted_y1 = zip(*sorted(zip(x1, y1)))
     sorted_x2, sorted_y2 = zip(*sorted(zip(x2, y2)))
 
@@ -46,3 +46,27 @@ def subtract(x1, y1, x2, y2):
     y_diff = [y1_i - y2_i for y1_i, y2_i in zip(y1, y2_interpolated)]
 
     return y_diff
+
+
+def second_derivative(x, y, smooth_level=0):
+    """
+    Calculate the second derivative of the data points, optionally applying smoothing.
+
+    :param x: List or array of x-values (independent variable)
+    :param y: List or array of y-values (dependent variable)
+    :param smooth_level: Number of points to smooth before computing the derivative. Default is 0 (no smoothing).
+    :return: Tuple (new_x, new_y), where new_x is the same as input x and new_y is the second derivative of y.
+    """
+
+    # Apply smoothing if requested
+    if smooth_level > 0:
+        y = np.convolve(y, np.ones(smooth_level) / smooth_level, mode='same')
+
+    # Compute the second derivative
+    second_derivative_y = [y[i + 1] - 2 * y[i] + y[i - 1] for i in range(1, len(x) - 1)]
+
+    # Return the result with x values as they are
+    new_x = x[2 + smooth_level:-2 - smooth_level]  # Adjust x to match the range of the second derivative
+    new_y = second_derivative_y[1 + smooth_level:-1 - smooth_level]
+
+    return new_x, new_y

@@ -2,3 +2,7 @@
 *.pyc
 *.lnk
 /tests
+/build
+/venv
+/dist
+/output

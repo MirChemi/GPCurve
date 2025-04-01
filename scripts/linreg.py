@@ -2,10 +2,9 @@ import numpy as np
 
 
 def estimate_coef(x, y):
-    # number of observations/points
+    """Estimate coefficients for linear regression."""
     n = np.size(x)
 
-    # mean of x and y vector
     m_x = np.mean(x)
     m_y = np.mean(y)
 
@@ -20,4 +19,5 @@ def estimate_coef(x, y):
     return b_0, b_1
 
 def interpolate(x, x_list : list, y_list : list):
+    """Interpolate y value at x using linear interpolation."""
     return y_list[0] + (y_list[1] - y_list[0]) * (x - x_list[0]) / (x_list[1] - x_list[0])

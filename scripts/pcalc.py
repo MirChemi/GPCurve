@@ -1,4 +1,5 @@
 def calculate_peak(lgm, lgm_y):
+    """Calculate peak parameters"""
     m_avg = []
     slice_start = []
     slice_end = []
