@@ -41,11 +41,11 @@ If you want to compile the project into an executable by yourself, follow these 
 2. Navigate to the project directory and run:
    - On Windows:
      ```bash
-     pyinstaller --noconfirm --windowed --name "GPCurve" --add-data "config.ini;." main.py
+     pyinstaller --noconfirm --name "GPCurve" --add-data "config.ini;." main.py
      ```
    - On Linux/macOS:
      ```bash
-     pyinstaller --noconfirm --windowed --name "GPCurve" --add-data "config.ini:." main.py
+     pyinstaller --noconfirm --name "GPCurve" --add-data "config.ini:." main.py
      ```
 3. The compiled program will be located in the `dist` folder.
 
