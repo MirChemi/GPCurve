@@ -6,10 +6,9 @@ import os
 import configparser
 import csv
 from itertools import zip_longest
-from statistics import mean
 
 from scipy.optimize import curve_fit
-from matplotlib import pyplot, widgets
+from matplotlib import widgets
 import numpy as np
 
 from scripts import norm, linreg, data_math
@@ -32,10 +31,12 @@ class Plot:
         self.derivative_widget.setWindowTitle(ex_name)
         self.ax_d = self.derivative_widget.figure.add_subplot()
         self.ax_d.set_position([0.08, 0.1, 0.8, 0.87])
+        self.d_reversed = False
 
         self.x = [x]
         self.y = [y]
         self.ex_name = [ex_name]
+        self.add_second_der(x, y)
 
         self.ax_der = self.widget.figure.add_axes((0.9, 0.7, 0.1, 0.075))
         self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
@@ -55,15 +56,18 @@ class Plot:
             to_copy += f'{self.x[-1][i]}\t{self.y[-1][i]}\n'
         clipboard.copy(to_copy)
 
-    def show_sec_der(self, event):
+    def add_second_der(self, x, y):
         config = configparser.ConfigParser()
         config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
-        x_der, y_der = second_derivative(self.x[-1],
-                                         self.y[-1],
-                                         config.getint('derivative', 'smoothing_level'))
 
-        self.ax_d.scatter(x_der, y_der)
-        self.ax_d.set_xlim(self.ax_d.get_xlim()[::-1])
+        x_der2, y_der2 = second_derivative(x, y, config.getint('derivative', 'smoothing_level'))
+
+        self.ax_d.scatter(x_der2, y_der2, color=base_color[(len(self.x) - 1) % len(base_color)])
+
+    def show_sec_der(self, event):
+        if not self.d_reversed and self.ax1.get_xlabel() == "lgM":
+            self.ax_d.set_xlim(self.ax_d.get_xlim()[::-1])
+            self.d_reversed = True
 
         self.derivative_widget.show()
         self.derivative_widget.canvas.draw()
@@ -128,7 +132,9 @@ class Plot_lgm(Plot):
         self.exp_lines.append(None)
         self.x.append(x)
         self.y.append(y)
+        self.add_second_der(x, y)
         self.ex_name.append(ex_name)
+
         if clean:
             self.exp_lines[-1], = self.ax1.plot(x, y,
                                                 color=base_color[(len(self.x) - 1) % len(base_color)], label=ex_name)
@@ -292,5 +298,6 @@ class Plot_vol(Plot):
         self.x.append(x)
         self.y.append(y)
         self.ex_name.append(ex_name)
+        self.add_second_der(x, y)
         self.ax1.plot(x, y, color=base_color[(len(self.x) - 1) % len(base_color)], label=ex_name)
         self.ax1.legend()

@@ -53,6 +53,7 @@ If you want to compile the project into an executable by yourself, follow these 
 
 1. Ensure the data files (`xxx.pdf` and `xxx.txt`) are in the same folder (see example).
 2. Ensure that you have a PDF file containing calibration constants or a folder with such files named in the format `yearmonthdate[RI-or-UV]` (see `constants_example`).
+3. Advanced settings can be configured in the `config.ini` file.
 
 ## Screenshots
 
@@ -64,5 +65,9 @@ If you want to compile the project into an executable by yourself, follow these 
 
 ![gauss](screenshots/example3.png)
 
-Enjoy! 😊
+## Contact
 
+If you have any questions or suggestions, please don't hesitate to contact me:
+- Email: [mirekchemis@gmail.com](mailto:mirekchemis@gmail.com)
+
+Enjoy! 😊

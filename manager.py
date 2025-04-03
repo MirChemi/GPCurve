@@ -180,6 +180,6 @@ class Manager:
             if not self.app.ui.checkBox_reuse.isChecked():
                 self.plots_vol.append(Plot_vol(vol, vol_y, ex_name))
             else:
-                self.plots_vol[-1].add(vol, vol_y, ex_name, self.app.ui.checkBox_clean.isChecked())
+                self.plots_vol[-1].add(vol, vol_y, ex_name)
 
             self.plots_vol[-1].show()
