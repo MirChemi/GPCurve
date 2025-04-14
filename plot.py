@@ -36,11 +36,11 @@ class Plot:
         self.x = [x]
         self.y = [y]
         self.ex_name = [ex_name]
-        self.add_second_der(x, y)
 
-        self.ax_der = self.widget.figure.add_axes((0.9, 0.7, 0.1, 0.075))
-        self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
-        self.b_der.on_clicked(self.show_sec_der)
+        self.second_der_plot = None
+        self.ax_der = None
+        self.b_der = None
+        self.init_second_der()
 
         self.ax_copy = self.widget.figure.add_axes((0.9, 0.6, 0.1, 0.075))
         self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
@@ -50,27 +50,45 @@ class Plot:
         self.b_save_fig = widgets.Button(self.ax_save_fig, 'Save\nfigure')
         self.b_save_fig.on_clicked(self.save_fig)
 
+    def init_second_der(self):
+        self.ax_der = self.widget.figure.add_axes((0.9, 0.7, 0.1, 0.075))
+        self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
+        self.b_der.on_clicked(self.show_sec_der)
+
+        config = configparser.ConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+
+        x_der2, y_der2 = second_derivative(self.x[0],
+                                           self.y[0],
+                                           config.getint("derivative", "smoothing_level"))
+        if self.__class__.__name__ == "Plot_lgm":
+            label_der2 = "lgM"
+        else:
+            label_der2 = "vol"
+        self.second_der_plot = Plot_der(x_der2,
+                                        y_der2,
+                                        f"{self.ex_name[0]}_2nd_der",
+                                        label_der2)
+
+    def add_second_der(self, x, y):
+        config = configparser.ConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+
+        x_der2, y_der2 = second_derivative(x,
+                                           y,
+                                           config.getint('derivative', 'smoothing_level'))
+
+        self.second_der_plot.add(x_der2, y_der2, f"{self.ex_name[-1]}_2nd_der")
+
     def copy_spectra(self, event):
         to_copy = ''
         for i in range(len(self.x[-1])):
             to_copy += f'{self.x[-1][i]}\t{self.y[-1][i]}\n'
         clipboard.copy(to_copy)
 
-    def add_second_der(self, x, y):
-        config = configparser.ConfigParser()
-        config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
-
-        x_der2, y_der2 = second_derivative(x, y, config.getint('derivative', 'smoothing_level'))
-
-        self.ax_d.scatter(x_der2, y_der2, color=base_color[(len(self.x) - 1) % len(base_color)])
 
     def show_sec_der(self, event):
-        if not self.d_reversed and self.ax1.get_xlabel() == "lgM":
-            self.ax_d.set_xlim(self.ax_d.get_xlim()[::-1])
-            self.d_reversed = True
-
-        self.derivative_widget.show()
-        self.derivative_widget.canvas.draw()
+        self.second_der_plot.show()
 
     def show(self):
         self.widget.show()
@@ -132,8 +150,8 @@ class Plot_lgm(Plot):
         self.exp_lines.append(None)
         self.x.append(x)
         self.y.append(y)
-        self.add_second_der(x, y)
         self.ex_name.append(ex_name)
+        self.add_second_der(x, y)
 
         if clean:
             self.exp_lines[-1], = self.ax1.plot(x, y,
@@ -202,11 +220,8 @@ class Plot_lgm(Plot):
         self.ax1.plot(self.pk_lgm[-1],
                       self.pk_lgm_y[-1],
                       color=base_color[(len(self.ex_name) - 1) % len(base_color)])
-        self.exp_lines[-1].set_label(
-            f'{self.ex_name[-1]} Mn={round(self.m_n)} '
-            f'Mw/Mn={round(self.m_w / self.m_n, 2)}\n'
-            f'area={round(self.p_area, 3)}'
-        )
+        self.exp_lines[-1].set_label(f'{self.ex_name[-1]} Mn={round(self.m_n)} Mw/Mn={round(self.m_w / self.m_n, 2)}\n'
+                                     f'area={round(self.p_area, 3)}')
         self.ax1.legend()
 
     def gauss(self, guess, guess_bounds):
@@ -218,9 +233,10 @@ class Plot_lgm(Plot):
 
         self.gauss_cum_lgm = self.pk_lgm[-1]
         self.gauss_cum_lgm_y = multi_gauss(self.pk_lgm[-1], *popt)
-        m_n, m_w, area = calculate_peak(self.gauss_cum_lgm, self.gauss_cum_lgm_y)
+        m_n, m_w, total_area = calculate_peak(self.gauss_cum_lgm, self.gauss_cum_lgm_y)
         self.ax1.plot(self.gauss_cum_lgm, self.gauss_cum_lgm_y, color=base_color[-1],
-                      label=f'gauss Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\narea={round(area, 3)}')
+                      label=(f'gauss Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\n'
+                             f'area={round(total_area, 3)}'))
 
         self.gauss_lgm = []
         self.gauss_lgm_y = []
@@ -229,7 +245,8 @@ class Plot_lgm(Plot):
             self.gauss_lgm_y.append(gauss(self.pk_lgm[-1], *fitted_params[i]))
             m_n, m_w, area = calculate_peak(self.gauss_lgm[-1], self.gauss_lgm_y[-1])
             self.ax1.plot(self.gauss_lgm[-1], self.gauss_lgm_y[-1], color=base_color[-2 - i],
-                          label=f'gauss{i} Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\narea={round(area, 3)}')
+                          label=(f'gauss{i} Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\n'
+                                 f'area={round(area, 3)} ({round(area / total_area * 100)}%)'))
 
         self.ax1.legend()
 
@@ -301,3 +318,24 @@ class Plot_vol(Plot):
         self.add_second_der(x, y)
         self.ax1.plot(x, y, color=base_color[(len(self.x) - 1) % len(base_color)], label=ex_name)
         self.ax1.legend()
+
+class Plot_der(Plot):
+    def __init__(self, x, y, ex_name, units):
+        super().__init__(x, y, ex_name)
+        self.ax1.set_xlabel(units)
+        self.ax1.scatter(x, y, color=base_color[0], label=ex_name)
+        if units == "lgM":
+            self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
+
+        self.ax1.legend()
+
+    def add(self, x, y, ex_name):
+        self.x.append(x)
+        self.y.append(y)
+        self.ex_name.append(ex_name)
+        self.ax1.scatter(x, y, color=base_color[(len(self.x) - 1) % len(base_color)], label=ex_name)
+        self.ax1.legend()
+
+    def init_second_der(self):
+        pass
+
