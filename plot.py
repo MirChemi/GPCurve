@@ -290,6 +290,7 @@ class Plot_lgm(Plot):
 
         self.ax1.plot(self.x[0], lgm0_y_norm, color='yellow', label=f"{self.ex_name[0]}_norm")
         self.ax1.legend()
+        self.show()
 
         lgm_y = data_math.subtract(self.x[-1], self.y[-1], self.x[0], lgm0_y_norm)
         lgm_y = norm.norm_0_1(lgm_y)
