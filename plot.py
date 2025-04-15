@@ -10,12 +10,16 @@ from itertools import zip_longest
 from scipy.optimize import curve_fit
 from matplotlib import widgets
 import numpy as np
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QPushButton
+from PySide6.QtGui import QIcon
 
 from scripts import norm, linreg, data_math
 from scripts.pcalc import calculate_peak
 from scripts.data_math import normalize_second_by_point, second_derivative
 from scripts.func import gauss, multi_gauss
 from ui.matplotlib_widget import MatplotlibWidget
+from ui.custom_elements import Button
 
 
 base_color = 'blue', 'red', 'green', 'black', 'magenta', 'cyan', 'yellow'
@@ -27,12 +31,6 @@ class Plot:
         self.ax1 = self.widget.figure.add_subplot()
         self.ax1.set_position([0.08, 0.1, 0.8, 0.87])
 
-        self.derivative_widget = MatplotlibWidget()
-        self.derivative_widget.setWindowTitle(ex_name)
-        self.ax_d = self.derivative_widget.figure.add_subplot()
-        self.ax_d.set_position([0.08, 0.1, 0.8, 0.87])
-        self.d_reversed = False
-
         self.x = [x]
         self.y = [y]
         self.ex_name = [ex_name]
@@ -40,20 +38,16 @@ class Plot:
         self.second_der_plot = None
         self.ax_der = None
         self.b_der = None
-        self.init_second_der()
 
-        self.ax_copy = self.widget.figure.add_axes((0.9, 0.6, 0.1, 0.075))
-        self.b_copy = widgets.Button(self.ax_copy, 'Copy\nspectra')
-        self.b_copy.on_clicked(self.copy_spectra)
 
-        self.ax_save_fig = self.widget.figure.add_axes((0.9, 0.5, 0.1, 0.075))
-        self.b_save_fig = widgets.Button(self.ax_save_fig, 'Save\nfigure')
-        self.b_save_fig.on_clicked(self.save_fig)
+        self.b_copy = Button(text="C", tooltip="Copy last raw curve to clipboard")
+        self.b_copy.clicked.connect(self.copy_spectra)
+        self.widget.add_custom_button(self.b_copy)
 
     def init_second_der(self):
-        self.ax_der = self.widget.figure.add_axes((0.9, 0.7, 0.1, 0.075))
-        self.b_der = widgets.Button(self.ax_der, 'Show\n2nd der')
-        self.b_der.on_clicked(self.show_sec_der)
+        self.b_der = Button(text="D", tooltip="Show 2nd derivatives")
+        self.b_der.clicked.connect(self.show_sec_der)
+        self.widget.add_custom_button(self.b_der)
 
         config = configparser.ConfigParser()
         config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
@@ -61,14 +55,11 @@ class Plot:
         x_der2, y_der2 = second_derivative(self.x[0],
                                            self.y[0],
                                            config.getint("derivative", "smoothing_level"))
-        if self.__class__.__name__ == "Plot_lgm":
-            label_der2 = "lgM"
-        else:
-            label_der2 = "vol"
+
         self.second_der_plot = Plot_der(x_der2,
                                         y_der2,
                                         f"{self.ex_name[0]}_2nd_der",
-                                        label_der2)
+                                        self.ax1.get_xlabel())
 
     def add_second_der(self, x, y):
         config = configparser.ConfigParser()
@@ -112,6 +103,7 @@ class Plot_lgm(Plot):
         super().__init__(x, y, ex_name)
 
         self.ax1.set_xlabel('lgM')
+        self.init_second_der()
         self.exp_lines = []
         self.pk_lgm = []
         self.pk_lgm_y = []
@@ -134,17 +126,17 @@ class Plot_lgm(Plot):
 
         self.ax1.set_xlim(self.ax1.get_xlim()[::-1])
 
-        self.ax_csv = self.widget.figure.add_axes((0.9, 0.4, 0.1, 0.075))
-        self.b_csv = widgets.Button(self.ax_csv, 'All to\ncsv')
-        self.b_csv.on_clicked(self.all_to_csv)
+        self.b_csv = Button(text="CSV", tooltip="Export all to csv to output folder")
+        self.b_csv.clicked.connect(self.all_to_csv)
+        self.widget.add_custom_button(self.b_csv)
 
-        self.ax_copy_p = self.widget.figure.add_axes((0.9, 0.3, 0.1, 0.075))
-        self.b_copy_p = widgets.Button(self.ax_copy_p, 'Copy\npeak')
-        self.b_copy_p.on_clicked(self.copy_peak)
+        self.b_copy_p = Button(text="CP", tooltip="Copy last peak to clipboard")
+        self.b_copy_p.clicked.connect(self.copy_peak)
+        self.widget.add_custom_button(self.b_copy_p)
 
-        self.ax_subtract = self.widget.figure.add_axes((0.9, 0.2, 0.1, 0.075))
-        self.b_subtract = widgets.Button(self.ax_subtract, 'Subtract\nfirst')
-        self.b_subtract.on_clicked(self.subtract_first)
+        self.b_subtract = Button(text="S", tooltip="Subtract first curve from last (normalization point in config.ini)")
+        self.b_subtract.clicked.connect(self.subtract_first)
+        self.widget.add_custom_button(self.b_subtract)
 
     def add(self, x, y, ex_name, clean):
         self.exp_lines.append(None)
@@ -295,7 +287,9 @@ class Plot_lgm(Plot):
         config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
         lgm0_y_norm = normalize_second_by_point(self.x[-1], self.y[-1], self.x[0], self.y[0],
                                                 config.getfloat('subtract','lgm_norm'))
-        self.ax1.plot(self.x[0], lgm0_y_norm, color='yellow')
+
+        self.ax1.plot(self.x[0], lgm0_y_norm, color='yellow', label=f"{self.ex_name[0]}_norm")
+        self.ax1.legend()
 
         lgm_y = data_math.subtract(self.x[-1], self.y[-1], self.x[0], lgm0_y_norm)
         lgm_y = norm.norm_0_1(lgm_y)
@@ -308,6 +302,7 @@ class Plot_vol(Plot):
     def __init__(self, x, y, ex_name):
         super().__init__(x, y, ex_name)
         self.ax1.set_xlabel('vol')
+        self.init_second_der()
         self.ax1.plot(x, y, color=base_color[0], label=ex_name)
         self.ax1.legend()
 
