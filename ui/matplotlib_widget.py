@@ -21,7 +21,7 @@ class MatplotlibWidget(QWidget):
         layout.addLayout(self.toolbar_layout)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
-        self.resize(800, 600)
+        self.resize(750, 600)
 
     def add_custom_button(self, button: QPushButton):
         self.toolbar_layout.insertWidget(0, button)

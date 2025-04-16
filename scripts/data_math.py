@@ -1,4 +1,8 @@
 import numpy as np
+from scipy.optimize import curve_fit
+
+from scripts.func import gauss
+from scripts.func import multi_gauss
 
 def sort_data(x, y):
     """Combine x and y into pairs, sort by x, and unzip the result"""
@@ -70,3 +74,30 @@ def second_derivative(x, y, smooth_level=0):
     new_y = second_derivative_y[1 + smooth_level:-1 - smooth_level]
 
     return new_x, new_y
+
+def gauss_fit(x, y, guess, lower_bounds, upper_bounds):
+    popt = []
+    x = np.array(x)
+    y = np.array(y)
+    y_residual = y.copy()
+
+    for i in range(len(guess) // 3):
+
+        if guess[3 * i + 1] == -1:
+            guess[3 * i + 1] = x[np.argmax(y_residual)]
+
+        popt, _ = curve_fit(
+            multi_gauss,
+            x,
+            y,
+            p0=guess[:3 * i + 3],
+            bounds=(lower_bounds[:3 * i + 3], upper_bounds[:3 * i + 3])
+        )
+
+        for j in range(3 * i + 3):
+            guess[j] = popt[j]
+
+        gauss_y = multi_gauss(x, *popt)
+        y_residual = y - gauss_y
+
+    return popt

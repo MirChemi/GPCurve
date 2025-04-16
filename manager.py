@@ -156,8 +156,7 @@ class Manager:
                         gauss_lower_bounds.append(self.config.getfloat('gauss', 'amp_lower_bound'))
                         gauss_upper_bounds.append(self.config.getfloat('gauss', 'amp_upper_bound'))
 
-                        gauss_guess.append(safe_float(gauss_cen[i],
-                                                      self.config.getfloat('gauss', 'basic_cen')))
+                        gauss_guess.append(safe_float(gauss_cen[i], -1))
                         if gauss_lock_cen[i]:
                             gauss_lower_bounds.append(gauss_guess[-1] - eps)
                             gauss_upper_bounds.append(gauss_guess[-1] + eps)
@@ -170,9 +169,8 @@ class Manager:
                         gauss_lower_bounds.append(self.config.getfloat('gauss', 'sigma_lower_bound'))
                         gauss_upper_bounds.append(self.config.getfloat('gauss', 'sigma_upper_bound'))
 
-                gauss_bounds = (gauss_lower_bounds, gauss_upper_bounds)
                 if gauss_guess:
-                    self.plots_lgm[-1].gauss(gauss_guess, gauss_bounds)
+                    self.plots_lgm[-1].gauss(gauss_guess, gauss_lower_bounds, gauss_upper_bounds)
 
             self.plots_lgm[-1].show()
 

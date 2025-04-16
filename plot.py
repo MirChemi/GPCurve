@@ -7,16 +7,11 @@ import configparser
 import csv
 from itertools import zip_longest
 
-from scipy.optimize import curve_fit
-from matplotlib import widgets
 import numpy as np
-from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QPushButton
-from PySide6.QtGui import QIcon
 
 from scripts import norm, linreg, data_math
 from scripts.pcalc import calculate_peak
-from scripts.data_math import normalize_second_by_point, second_derivative
+from scripts.data_math import normalize_second_by_point, second_derivative, gauss_fit
 from scripts.func import gauss, multi_gauss
 from ui.matplotlib_widget import MatplotlibWidget
 from ui.custom_elements import Button
@@ -29,7 +24,7 @@ class Plot:
         self.widget = MatplotlibWidget()
         self.widget.setWindowTitle(ex_name)
         self.ax1 = self.widget.figure.add_subplot()
-        self.ax1.set_position([0.08, 0.1, 0.8, 0.87])
+        self.ax1.set_position([0.1, 0.1, 0.85, 0.87])
 
         self.x = [x]
         self.y = [y]
@@ -111,6 +106,7 @@ class Plot_lgm(Plot):
         self.gauss_cum_lgm_y = []
         self.gauss_lgm = []
         self.gauss_lgm_y = []
+        self.g_residual_plot = None
         self.pk_ex_name = []
         self.m_n = 0
         self.m_w = 0
@@ -137,6 +133,10 @@ class Plot_lgm(Plot):
         self.b_subtract = Button(text="S", tooltip="Subtract first curve from last (normalization point in config.ini)")
         self.b_subtract.clicked.connect(self.subtract_first)
         self.widget.add_custom_button(self.b_subtract)
+
+        self.b_subtract_g = Button(text="SG", tooltip="Subtract gaussian sum from last peak")
+        self.b_subtract_g.clicked.connect(self.subtract_gauss)
+        self.widget.add_custom_button(self.b_subtract_g)
 
     def add(self, x, y, ex_name, clean):
         self.exp_lines.append(None)
@@ -216,9 +216,9 @@ class Plot_lgm(Plot):
                                      f'area={round(self.p_area, 3)}')
         self.ax1.legend()
 
-    def gauss(self, guess, guess_bounds):
+    def gauss(self, guess, lower_bounds, upper_bounds):
         # Perform Gaussian fitting
-        popt, _ = curve_fit(multi_gauss, self.pk_lgm[-1], self.pk_lgm_y[-1], p0=guess, bounds=guess_bounds)
+        popt = gauss_fit(self.pk_lgm[-1], self.pk_lgm_y[-1], guess, lower_bounds, upper_bounds)
 
         # Extract parameters
         fitted_params = np.array(popt).reshape(-1, 3)  # [amp, cen, sigma] for each gaussian
@@ -237,7 +237,7 @@ class Plot_lgm(Plot):
             self.gauss_lgm_y.append(gauss(self.pk_lgm[-1], *fitted_params[i]))
             m_n, m_w, area = calculate_peak(self.gauss_lgm[-1], self.gauss_lgm_y[-1])
             self.ax1.plot(self.gauss_lgm[-1], self.gauss_lgm_y[-1], color=base_color[-2 - i],
-                          label=(f'gauss{i} Mn={round(m_n)} Mw/Mn={round(m_w / self.m_n, 2)}\n'
+                          label=(f'gauss{i} Mn={round(m_n)} Mw/Mn={round(m_w / m_n, 2)}\n'
                                  f'area={round(area, 3)} ({round(area / total_area * 100)}%)'))
 
         self.ax1.legend()
@@ -297,6 +297,11 @@ class Plot_lgm(Plot):
         self.subtracted = Plot_lgm(self.x[-1], lgm_y, self.ex_name[-1], False)
         self.subtracted.peak([None, None], [None, None])
         self.subtracted.show()
+
+    def subtract_gauss(self, event):
+        lgm_y = data_math.subtract(self.pk_lgm[-1], self.pk_lgm_y[-1], self.gauss_cum_lgm, self.gauss_cum_lgm_y)
+        self.g_residual_plot = Plot_lgm(self.pk_lgm[-1], lgm_y, f"{self.ex_name[-1]}_residual", False)
+        self.g_residual_plot.show()
 
 
 class Plot_vol(Plot):
