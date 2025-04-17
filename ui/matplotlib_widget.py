@@ -24,4 +24,7 @@ class MatplotlibWidget(QWidget):
         self.resize(750, 600)
 
     def add_custom_button(self, button: QPushButton):
+        if button.objectName():
+            if self.toolbar_layout.parent().findChild(QPushButton, button.objectName()):
+                return
         self.toolbar_layout.insertWidget(0, button)
