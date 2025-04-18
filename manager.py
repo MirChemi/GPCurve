@@ -27,20 +27,20 @@ class Manager:
         self.plots_vol = []
         self.config = configparser.ConfigParser()
 
-        self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+        self.config.read(os.path.join(os.path.dirname(__file__), "config.ini"))
 
-        if self.config.get('auto_save', 'const_path') != '':
-            self.app.ui.list_const.insertItem(2, self.config.get('auto_save', 'const_path'))
+        if self.config.get("auto_save", "const_path") != "":
+            self.app.ui.list_const.insertItem(2, self.config.get("auto_save", "const_path"))
 
-        self.app.ui.lineEdit_v1.setText(self.config.get('auto_save', 'vol1'))
-        self.app.ui.lineEdit_v2.setText(self.config.get('auto_save', 'vol2'))
+        self.app.ui.lineEdit_v1.setText(self.config.get("auto_save", "vol1"))
+        self.app.ui.lineEdit_v2.setText(self.config.get("auto_save", "vol2"))
 
         self.app.ui.pushButton_start.clicked.connect(self.start)
 
         self.app.show()
 
     def start(self):
-        self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+        self.config.read(os.path.join(os.path.dirname(__file__), "config.ini"))
 
         input_data = self.app.ui.list_data.item(1).text()
         input_const = self.app.ui.list_const.item(1).text()
@@ -50,11 +50,11 @@ class Manager:
 
         ex_name = input_data.split("/")[-1].split(".")[0]
 
-        if input_const != '':
-            self.config.set('auto_save', 'const_path', input_const)
-        self.config.set('auto_save', 'vol1', flag1)
-        self.config.set('auto_save', 'vol2', flag2)
-        with open(os.path.join(os.path.dirname(__file__), 'config.ini'), 'w') as configfile:
+        if input_const != "":
+            self.config.set("auto_save", "const_path", input_const)
+        self.config.set("auto_save", "vol1", flag1)
+        self.config.set("auto_save", "vol2", flag2)
+        with open(os.path.join(os.path.dirname(__file__), "config.ini"), "w") as configfile:
             self.config.write(configfile)
 
         c_inputs = [self.app.ui.lineEdit_c0.text(),
@@ -66,18 +66,18 @@ class Manager:
             const = [safe_float(c_inputs[i]) for i in range(len(c_inputs))]
         else:
             const = const_extr.extract_const(input_const, input_data)
-        print('C0 - C3 = ' + str(const))
+        print("C0 - C3 = " + str(const))
 
         vol, vol_y, vol_wt = data_extr.extract_data(input_data, flag1, flag2)
 
         if not self.app.ui.checkBox_vol.isChecked():
             lgm, lgm_y = [], []
             for i in range(len(vol)):
-                if self.config.getboolean('vol_to_lgm', 'lin_approx'):
-                    c_lgm1 = self.config.getfloat('lin_approx', 'lin_lgm1')
-                    c_lgm2 = self.config.getfloat('lin_approx', 'lin_lgm2')
-                    c_vol1 = self.config.getfloat('lin_approx', 'lin_vol1')
-                    c_vol2 = self.config.getfloat('lin_approx', 'lin_vol2')
+                if self.config.getboolean("vol_to_lgm", "lin_approx"):
+                    c_lgm1 = self.config.getfloat("lin_approx", "lin_lgm1")
+                    c_lgm2 = self.config.getfloat("lin_approx", "lin_lgm2")
+                    c_vol1 = self.config.getfloat("lin_approx", "lin_vol1")
+                    c_vol2 = self.config.getfloat("lin_approx", "lin_vol2")
                     lgm.append(linreg.interpolate(vol[i], [c_vol1, c_vol2], [c_lgm1, c_lgm2]))
                 else:
                     lgm.append(vol_to_lgm(vol[i], const))
@@ -86,10 +86,10 @@ class Manager:
                     lgm_y.append(vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]))
                 elif i > 1:
                     lgm_y.append(2 * vol_wt[i - 1] / abs(lgm[i] - lgm[i - 1]) - lgm_y[i - 1])
-            if self.config.get('data', 'norm_mode') == '01':
+            if self.config.get("data", "norm_mode") == "01":
                 lgm_y = norm.norm_0_1(lgm_y)
                 print("Norm_0_1")
-            elif self.config.get('data', 'norm_mode') == '1':
+            elif self.config.get("data", "norm_mode") == "1":
                 lgm_y = norm.norm_1(lgm_y)
                 print("Norm_1")
 
@@ -108,7 +108,7 @@ class Manager:
 
                 if self.app.ui.radioButton_vol.isChecked():
                     pk_points[:2] = [vol_to_lgm(v, const) if v else v for v in pk_points[:2]]
-                    print('Recalculating peak position to lgm')
+                    print("Recalculating peak position to lgm")
                 self.plots_lgm[-1].peak(pk_points, pk_baseline_intensities)
 
             eps = 0.000001
@@ -125,52 +125,62 @@ class Manager:
                          self.app.ui.checkBox_enable7.isChecked(),
                          self.app.ui.checkBox_enable8.isChecked()]
 
-            gauss_amp = [
-                item.text() if (item := self.app.ui.tableWidget.item(0, i)) else ''
-                for i in range(8)
-            ]
-
-            gauss_cen = [
-                item.text() if (item := self.app.ui.tableWidget.item(1, i)) else ''
-                for i in range(8)
-            ]
-
-            gauss_sigma = [
-                item.text() if (item := self.app.ui.tableWidget.item(2, i)) else ''
-                for i in range(8)
-            ]
-
-            gauss_lock_cen = [self.app.ui.checkBox_lock1.isChecked(),
-                              self.app.ui.checkBox_lock2.isChecked(),
-                              self.app.ui.checkBox_lock3.isChecked(),
-                              self.app.ui.checkBox_lock4.isChecked(),
-                              self.app.ui.checkBox_lock5.isChecked(),
-                              self.app.ui.checkBox_lock6.isChecked(),
-                              self.app.ui.checkBox_lock7.isChecked(),
-                              self.app.ui.checkBox_lock8.isChecked()]
             if any(gauss_use):
+                gauss_amp = [
+                    item.text() if (item := self.app.ui.tableWidget.item(0, i)) else ""
+                    for i in range(8)
+                ]
+
+                gauss_cen = [
+                    item.text() if (item := self.app.ui.tableWidget.item(1, i)) else ""
+                    for i in range(8)
+                ]
+
+                gauss_sigma = [
+                    item.text() if (item := self.app.ui.tableWidget.item(2, i)) else ""
+                    for i in range(8)
+                ]
+
+                gauss_lock_cen = [self.app.ui.checkBox_lock1.isChecked(),
+                                  self.app.ui.checkBox_lock2.isChecked(),
+                                  self.app.ui.checkBox_lock3.isChecked(),
+                                  self.app.ui.checkBox_lock4.isChecked(),
+                                  self.app.ui.checkBox_lock5.isChecked(),
+                                  self.app.ui.checkBox_lock6.isChecked(),
+                                  self.app.ui.checkBox_lock7.isChecked(),
+                                  self.app.ui.checkBox_lock8.isChecked()]
+
+                gauss_sum = [self.app.ui.checkBox_sum_1.isChecked(),
+                             self.app.ui.checkBox_sum_2.isChecked(),
+                             self.app.ui.checkBox_sum_3.isChecked(),
+                             self.app.ui.checkBox_sum_4.isChecked(),
+                             self.app.ui.checkBox_sum_5.isChecked(),
+                             self.app.ui.checkBox_sum_6.isChecked(),
+                             self.app.ui.checkBox_sum_7.isChecked(),
+                             self.app.ui.checkBox_sum_8.isChecked()]
+
                 for i in range(len(gauss_use)):
                     if bool(gauss_use[i]):
                         gauss_guess.append(safe_float(gauss_amp[i],
-                                                      self.config.getfloat('gauss', 'basic_amp')))
-                        gauss_lower_bounds.append(self.config.getfloat('gauss', 'amp_lower_bound'))
-                        gauss_upper_bounds.append(self.config.getfloat('gauss', 'amp_upper_bound'))
+                                                      self.config.getfloat("gauss", "basic_amp")))
+                        gauss_lower_bounds.append(self.config.getfloat("gauss", "amp_lower_bound"))
+                        gauss_upper_bounds.append(self.config.getfloat("gauss", "amp_upper_bound"))
 
                         gauss_guess.append(safe_float(gauss_cen[i], -1))
                         if gauss_lock_cen[i]:
                             gauss_lower_bounds.append(gauss_guess[-1] - eps)
                             gauss_upper_bounds.append(gauss_guess[-1] + eps)
                         else:
-                            gauss_lower_bounds.append(self.config.getfloat('gauss', 'cen_lower_bound'))
-                            gauss_upper_bounds.append(self.config.getfloat('gauss', 'cen_upper_bound'))
+                            gauss_lower_bounds.append(self.config.getfloat("gauss", "cen_lower_bound"))
+                            gauss_upper_bounds.append(self.config.getfloat("gauss", "cen_upper_bound"))
 
                         gauss_guess.append(safe_float(gauss_sigma[i],
-                                                      self.config.getfloat('gauss', 'basic_sigma')))
-                        gauss_lower_bounds.append(self.config.getfloat('gauss', 'sigma_lower_bound'))
-                        gauss_upper_bounds.append(self.config.getfloat('gauss', 'sigma_upper_bound'))
+                                                      self.config.getfloat("gauss", "basic_sigma")))
+                        gauss_lower_bounds.append(self.config.getfloat("gauss", "sigma_lower_bound"))
+                        gauss_upper_bounds.append(self.config.getfloat("gauss", "sigma_upper_bound"))
 
-                if gauss_guess:
-                    self.plots_lgm[-1].gauss(gauss_guess, gauss_lower_bounds, gauss_upper_bounds)
+                self.plots_lgm[-1].gauss(gauss_guess, gauss_lower_bounds, gauss_upper_bounds)
+                self.plots_lgm[-1].gauss_sum([i for i in range(8) if gauss_sum[i]])
 
             self.plots_lgm[-1].show()
 

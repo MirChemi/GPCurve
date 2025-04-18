@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_window.ui'
+## Form generated from reading UI file 'main_windowIUUuBL.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.3
 ##
@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(797, 489)
+        MainWindow.resize(797, 505)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -287,6 +287,33 @@ class Ui_MainWindow(object):
         self.tableWidget.verticalHeader().setMinimumSectionSize(20)
         self.tableWidget.verticalHeader().setDefaultSectionSize(20)
         self.tableWidget.verticalHeader().setHighlightSections(False)
+        self.label_28 = QLabel(self.tab_main)
+        self.label_28.setObjectName(u"label_28")
+        self.label_28.setGeometry(QRect(0, 440, 71, 20))
+        self.checkBox_sum_1 = QCheckBox(self.tab_main)
+        self.checkBox_sum_1.setObjectName(u"checkBox_sum_1")
+        self.checkBox_sum_1.setGeometry(QRect(120, 440, 21, 24))
+        self.checkBox_sum_2 = QCheckBox(self.tab_main)
+        self.checkBox_sum_2.setObjectName(u"checkBox_sum_2")
+        self.checkBox_sum_2.setGeometry(QRect(170, 440, 21, 24))
+        self.checkBox_sum_3 = QCheckBox(self.tab_main)
+        self.checkBox_sum_3.setObjectName(u"checkBox_sum_3")
+        self.checkBox_sum_3.setGeometry(QRect(220, 440, 21, 24))
+        self.checkBox_sum_4 = QCheckBox(self.tab_main)
+        self.checkBox_sum_4.setObjectName(u"checkBox_sum_4")
+        self.checkBox_sum_4.setGeometry(QRect(270, 440, 21, 24))
+        self.checkBox_sum_5 = QCheckBox(self.tab_main)
+        self.checkBox_sum_5.setObjectName(u"checkBox_sum_5")
+        self.checkBox_sum_5.setGeometry(QRect(320, 440, 21, 24))
+        self.checkBox_sum_6 = QCheckBox(self.tab_main)
+        self.checkBox_sum_6.setObjectName(u"checkBox_sum_6")
+        self.checkBox_sum_6.setGeometry(QRect(370, 440, 21, 24))
+        self.checkBox_sum_7 = QCheckBox(self.tab_main)
+        self.checkBox_sum_7.setObjectName(u"checkBox_sum_7")
+        self.checkBox_sum_7.setGeometry(QRect(420, 440, 21, 24))
+        self.checkBox_sum_8 = QCheckBox(self.tab_main)
+        self.checkBox_sum_8.setObjectName(u"checkBox_sum_8")
+        self.checkBox_sum_8.setGeometry(QRect(470, 440, 21, 24))
         self.tabWidget.addTab(self.tab_main, "")
         self.tab_about = QWidget()
         self.tab_about.setObjectName(u"tab_about")
@@ -412,8 +439,17 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"C2:", None))
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Amplitude guess", None))
         self.label_21.setText(QCoreApplication.translate("MainWindow", u"--->", None))
+        self.label_28.setText(QCoreApplication.translate("MainWindow", u"Partial sum", None))
+        self.checkBox_sum_1.setText("")
+        self.checkBox_sum_2.setText("")
+        self.checkBox_sum_3.setText("")
+        self.checkBox_sum_4.setText("")
+        self.checkBox_sum_5.setText("")
+        self.checkBox_sum_6.setText("")
+        self.checkBox_sum_7.setText("")
+        self.checkBox_sum_8.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_main), QCoreApplication.translate("MainWindow", u"Main", None))
-        self.label_29.setText(QCoreApplication.translate("MainWindow", u"Version: alpha 1.0", None))
+        self.label_29.setText(QCoreApplication.translate("MainWindow", u"Version: alpha 2.0", None))
         self.label_30.setText(QCoreApplication.translate("MainWindow", u"\u00a9 2025 MirChemi", None))
         self.label_31.setText(QCoreApplication.translate("MainWindow", u"License: MIT", None))
         self.label_32.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Contact: <a href=\"mailto:mirekchemis@gmail.com\"><span style=\" text-decoration: underline; color:#004275;\">mirekchemis@gmail.com</span></a></p></body></html>", None))

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>797</width>
-    <height>489</height>
+    <height>505</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -990,6 +990,123 @@
       <column/>
       <column/>
      </widget>
+     <widget class="QLabel" name="label_28">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>440</y>
+        <width>71</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Partial sum</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_1">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_2">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_3">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_4">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_5">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_6">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_7">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_sum_8">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>440</y>
+        <width>21</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_about">
      <property name="sizePolicy">
@@ -1017,7 +1134,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Version: alpha 1.0</string>
+       <string>Version: alpha 2.0</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_30">
