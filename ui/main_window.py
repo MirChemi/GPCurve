@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_windowIUUuBL.ui'
+## Form generated from reading UI file 'main_windowDTBUjB.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.3
 ##
@@ -75,7 +75,7 @@ class Ui_MainWindow(object):
         self.checkBox_reuse.setGeometry(QRect(120, 130, 111, 21))
         self.checkBox_clean = QCheckBox(self.tab_main)
         self.checkBox_clean.setObjectName(u"checkBox_clean")
-        self.checkBox_clean.setGeometry(QRect(240, 130, 111, 21))
+        self.checkBox_clean.setGeometry(QRect(240, 130, 81, 21))
         self.pushButton_start = QPushButton(self.tab_main)
         self.pushButton_start.setObjectName(u"pushButton_start")
         self.pushButton_start.setGeometry(QRect(10, 130, 93, 29))
