@@ -43,34 +43,30 @@ class Manager:
         self.config.read(os.path.join(os.path.dirname(__file__), "config.ini"))
 
         input_data = self.app.ui.list_data.item(1).text()
-        input_const = self.app.ui.list_const.item(1).text()
-
         flag1 = self.app.ui.lineEdit_v1.text()
         flag2 = self.app.ui.lineEdit_v2.text()
-
         ex_name = input_data.split("/")[-1].split(".")[0]
 
-        if input_const != "":
-            self.config.set("auto_save", "const_path", input_const)
         self.config.set("auto_save", "vol1", flag1)
         self.config.set("auto_save", "vol2", flag2)
-        with open(os.path.join(os.path.dirname(__file__), "config.ini"), "w") as configfile:
-            self.config.write(configfile)
 
         c_inputs = [self.app.ui.lineEdit_c0.text(),
                     self.app.ui.lineEdit_c1.text(),
                     self.app.ui.lineEdit_c2.text(),
                     self.app.ui.lineEdit_c3.text()]
 
-        if all(c_inputs):
-            const = [safe_float(c_inputs[i]) for i in range(len(c_inputs))]
-        else:
-            const = const_extr.extract_const(input_const, input_data)
-        print("C0 - C3 = " + str(const))
-
         vol, vol_y, vol_wt = data_extr.extract_data(input_data, flag1, flag2)
 
         if not self.app.ui.checkBox_vol.isChecked():
+            input_const = self.app.ui.list_const.item(1).text()
+            if input_const != "":
+                self.config.set("auto_save", "const_path", input_const)
+            if all(c_inputs):
+                const = [safe_float(c_inputs[i]) for i in range(len(c_inputs))]
+            else:
+                const = const_extr.extract_const(input_const, input_data)
+            print("C0 - C3 = " + str(const))
+
             lgm, lgm_y = [], []
             for i in range(len(vol)):
                 if self.config.getboolean("vol_to_lgm", "lin_approx"):
@@ -191,3 +187,6 @@ class Manager:
                 self.plots_vol[-1].add(vol, vol_y, ex_name)
 
             self.plots_vol[-1].show()
+
+        with open(os.path.join(os.path.dirname(__file__), "config.ini"), "w") as configfile:
+            self.config.write(configfile)

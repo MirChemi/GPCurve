@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_windowDTBUjB.ui'
+## Form generated from reading UI file 'main_windowmJqecy.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.3
 ##
@@ -449,7 +449,7 @@ class Ui_MainWindow(object):
         self.checkBox_sum_7.setText("")
         self.checkBox_sum_8.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_main), QCoreApplication.translate("MainWindow", u"Main", None))
-        self.label_29.setText(QCoreApplication.translate("MainWindow", u"Version: alpha 2.0", None))
+        self.label_29.setText(QCoreApplication.translate("MainWindow", u"Version: alpha 2.3", None))
         self.label_30.setText(QCoreApplication.translate("MainWindow", u"\u00a9 2025 MirChemi", None))
         self.label_31.setText(QCoreApplication.translate("MainWindow", u"License: MIT", None))
         self.label_32.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Contact: <a href=\"mailto:mirekchemis@gmail.com\"><span style=\" text-decoration: underline; color:#004275;\">mirekchemis@gmail.com</span></a></p></body></html>", None))
